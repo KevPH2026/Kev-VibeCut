@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kev-VibeCut — 设计稿</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --surface3: #222233;
+    --border: #2a2a3a;
+    --accent: #6c5ce7;
+    --accent-glow: #a78bfa;
+    --pink: #ff2d55;
+    --cyan: #00d4ff;
+    --green: #00e676;
+    --gold: #ffc107;
+    --text: #e8e8f0;
+    --text2: #8888a0;
+    --text3: #555570;
+    --font: 'Noto Sans SC', -apple-system, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { 
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: 
+      radial-gradient(ellipse 40% 60% at 30% 20%, rgba(108,92,231,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 30% 50% at 70% 60%, rgba(0,212,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 20% 30% at 50% 80%, rgba(255,45,85,0.06) 0%, transparent 50%);
+    animation: heroBg 20s ease-in-out infinite alternate;
+  }
+  @keyframes heroBg {
+    0% { transform: translate(0,0) rotate(0deg); }
+    100% { transform: translate(2%,1%) rotate(2deg); }
+  }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    text-align: center; max-width: 800px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 50px;
+    background: rgba(108,92,231,0.12); border: 1px solid rgba(108,92,231,0.25);
+    color: var(--accent-glow); font-size: 13px; font-weight: 600;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+  .hero-badge .dot { width:6px; height:6px; border-radius:50%; background: var(--accent-glow); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  .hero h1 {
+    font-size: clamp(48px, 7vw, 88px); font-weight: 900; line-height: 1.05;
+    background: linear-gradient(135deg, #e8e8f0 0%, #b8b8d0 40%, #a78bfa 70%, #e8e8f0 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -2px;
+  }
+  .hero h1 span { -webkit-text-fill-color: var(--accent); }
+
+  .hero-sub {
+    font-size: 20px; color: var(--text2); font-weight: 400;
+    margin-bottom: 40px; line-height: 1.6;
+  }
+
+  /* Platform Pills */
+  .platforms {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 48px;
+  }
+  .platform-pill {
+    padding: 10px 22px; border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer; transition: all 0.25s;
+    text-align: left; min-width: 100px;
+  }
+  .platform-pill:hover {
+    border-color: rgba(108,92,231,0.5);
+    background: rgba(108,92,231,0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(108,92,231,0.1);
+  }
+  .platform-pill.active {
+    border-color: var(--accent);
+    background: rgba(108,92,231,0.12);
+    box-shadow: 0 0 24px rgba(108,92,231,0.15);
+  }
+  .platform-pill .pname { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .platform-pill .pmeta { font-size: 12px; color: var(--text2); }
+  .platform-pill .pdot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    display: inline-block; margin-left: 6px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .platform-pill.active .pdot { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+
+  .btn-start {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 36px; border-radius: 16px;
+    background: var(--accent); color: #fff; font-size: 17px; font-weight: 700;
+    border: none; cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 24px rgba(108,92,231,0.3);
+  }
+  .btn-start:hover {
+    background: #7c6cf7; transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(108,92,231,0.4);
+  }
+
+  /* ── Editor Mock ── */
+  .section-title {
+    text-align: center; padding: 40px 20px 20px;
+  }
+  .section-title h2 {
+    font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px;
+  }
+  .section-title p { color: var(--text2); font-size: 16px; }
+
+  .editor-frame {
+    max-width: 1200px; margin: 0 auto 80px;
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .editor-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 8px; }
+  .topbar-center { display: flex; align-items: center; gap: 10px; flex:1; justify-content: center; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+  .topbar-brand { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+  .topbar-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .btn-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: none; background: transparent; color: var(--text2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: all 0.2s;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+  .agent-input-wrap {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .agent-btn {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(108,92,231,0.08); border: 1px solid rgba(108,92,231,0.2);
+    color: var(--accent-glow); font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .agent-btn:hover { background: rgba(108,92,231,0.15); }
+  .agent-input {
+    padding: 5px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(108,92,231,0.3);
+    color: var(--text); font-size: 11px; font-family: var(--font);
+    width: 220px; outline: none;
+  }
+  .agent-input:focus { border-color: var(--accent); }
+  .agent-input::placeholder { color: var(--text3); }
+
+  .btn-export {
+    padding: 6px 14px; border-radius: 10px;
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: all 0.2s;
+  }
+  .btn-export:hover { background: #7c6cf7; }
+
+  .editor-body {
+    display: flex; height: 480px;
+  }
+  .editor-preview {
+    flex: 1; background: #000;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .preview-inner {
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .preview-canvas {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .preview-text {
+    position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.6); color: #fff; padding: 8px 20px;
+    border-radius: 8px; font-size: 16px; font-weight: 600;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+  }
+  .preview-watermark {
+    position: absolute; bottom: 4%; right: 4%;
+    color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 500;
+  }
+
+  .editor-sidebar {
+    width: 280px; border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    background: var(--surface);
+  }
+  .sidebar-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+  }
+  .sidebar-tab {
+    flex: 1; padding: 8px 4px; text-align: center;
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .sidebar-content { flex: 1; overflow-y: auto; padding: 12px; }
+  .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .template-card {
+    padding: 12px 10px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .template-card:hover { border-color: rgba(108,92,231,0.4); background: rgba(108,92,231,0.05); }
+  .template-card .tplat { font-size: 9px; color: var(--pink); font-weight: 700; margin-bottom: 3px; text-transform: uppercase; }
+  .template-card .tplat.xhs { color: #ff6b81; }
+  .template-card .tplat.bili { color: var(--cyan); }
+  .template-card .tname { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .template-card .tpreview {
+    font-size: 10px; color: var(--text3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .editor-timeline {
+    height: 140px; border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; flex-direction: column;
+  }
+  .timeline-toolbar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--text2);
+  }
+  .timeline-tracks { flex:1; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .timeline-track {
+    height: 36px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font-size: 11px; font-weight: 500;
+  }
+  .track-video { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15); color: var(--cyan); }
+  .track-audio { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.15); color: var(--green); }
+  .track-text { background: rgba(255,193,7,0.08); border: 1px solid rgba(255,193,7,0.15); color: var(--gold); }
+
+  /* ── Feature Grid ── */
+  .features {
+    max-width: 1200px; margin: 0 auto 80px; padding: 0 20px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .feature-card {
+    padding: 24px; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    transition: all 0.25s;
+  }
+  .feature-card:hover { border-color: rgba(108,92,231,0.3); }
+  .feature-icon { font-size: 28px; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .feature-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; padding: 60px 20px;
+    color: var(--text3); font-size: 13px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .editor-body { flex-direction: column; height: auto; }
+    .editor-preview { min-height: 200px; }
+    .editor-sidebar { width: 100%; border-left: none; border-top: 1px solid var(--border); max-height: 240px; }
+    .platforms { gap: 6px; }
+    .platform-pill { min-width: 70px; padding: 8px 12px; }
+    .platform-pill .pname { font-size: 12px; }
+    .agent-input { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Agent 驱动 · 开源 · 为中国人设计</div>
+    <h1>Kev-<span>VibeCut</span></h1>
+    <p class="hero-sub">选择你的平台，AI 帮你搞定剪辑</p>
+
+    <div class="platforms" id="platforms">
+      <div class="platform-pill active" data-ratio="16:9">
+        <div class="pname">B站 · 横屏</div>
+        <div class="pmeta">16:9 · 1920×1080</div>
+      </div>
+      <div class="platform-pill" data-ratio="9:16">
+        <div class="pname">抖音 · 竖屏<span class="pdot"></span></div>
+        <div class="pmeta">9:16 · 1080×1920</div>
+      </div>
+      <div class="platform-pill" data-ratio="3:4">
+        <div class="pname">小红书</div>
+        <div class="pmeta">3:4 · 1080×1440</div>
+      </div>
+      <div class="platform-pill" data-ratio="1:1">
+        <div class="pname">方形</div>
+        <div class="pmeta">1:1 · 1080×1080</div>
+      </div>
+      <div class="platform-pill" data-ratio="21:9">
+        <div class="pname">电影宽屏</div>
+        <div class="pmeta">21:9 · 2520×1080</div>
+      </div>
+    </div>
+
+    <button class="btn-start">✨ 开始新项目</button>
+  </div>
+</section>
+
+<!-- ═══════════════ EDITOR MOCKUP ═══════════════ -->
+<div class="section-title">
+  <h2>编辑器预览</h2>
+  <p>暗黑极简 · 全中文 · Agent 输入框内嵌</p>
+</div>
+
+<div class="editor-frame">
+  <!-- TopBar -->
+  <div class="editor-topbar">
+    <div class="topbar-left">
+      <button class="btn-icon">🏠</button>
+      <span class="topbar-brand">Kev-VibeCut</span>
+    </div>
+    <div class="topbar-center">
+      <span class="topbar-name">未命名项目</span>
+      <div class="agent-input-wrap">
+        <button class="agent-btn">✨ AI</button>
+        <input class="agent-input" placeholder="添加文字：大家好我是K" value="模板 炸裂标题">
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-icon">⚙️</button>
+      <button class="btn-export">📤 导出</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="editor-body">
+    <!-- Preview -->
+    <div class="editor-preview">
+      <div class="preview-inner" id="preview-inner">
+        <div class="preview-canvas" id="preview-canvas">
+          <div class="preview-text" id="preview-text">炸裂标题</div>
+          <div class="preview-watermark">@KevPH</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="editor-sidebar">
+      <div class="sidebar-tabs">
+        <div class="sidebar-tab active">素材</div>
+        <div class="sidebar-tab">音频</div>
+        <div class="sidebar-tab">文字</div>
+        <div class="sidebar-tab">字幕</div>
+        <div class="sidebar-tab">模板</div>
+      </div>
+      <div class="sidebar-content">
+        <div class="template-grid">
+          <div class="template-card">
+            <div class="tplat">抖音</div>
+            <div class="tname">炸裂标题</div>
+            <div class="tpreview">点击关注不迷路</div>
+          </div>
+          <div class="template-card">
+            <div class="tplat xhs">小红书</div>
+            <div class="tname">封面标题</div>
+            <div class="tpreview">必收藏的宝藏好物</div>
+          </div>
+          <div class="template-card">
+            <div class="tplat bili">B站</div>
+            <div class="tname">三连引导</div>
+            <div class="tpreview">⚡ 点赞投币收藏</div>
+          </div>
+          <div class="template-card">
+            <div class="tplat">抖音</div>
+            <div class="tname">点赞关注</div>
+            <div class="tpreview">👍 点赞·关注·转发</div>
+          </div>
+          <div class="template-card">
+            <div class="tplat xhs">小红书</div>
+            <div class="tname">好物推荐</div>
+            <div class="tpreview">🏷️ 自用推荐</div>
+          </div>
+          <div class="template-card">
+            <div class="tplat bili">B站</div>
+            <div class="tname">科技标题</div>
+            <div class="tpreview">从零搭建AI应用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="editor-timeline">
+    <div class="timeline-toolbar">
+      <button class="btn-icon" style="font-size:11px">↩</button>
+      <button class="btn-icon" style="font-size:11px">↪</button>
+      <span style="margin-left:8px">00:00 / 00:15</span>
+      <span style="margin-left:auto; color:var(--text3)">v1</span>
+    </div>
+    <div class="timeline-tracks">
+      <div class="timeline-track track-video">🎬 视频轨 — 素材导入后显示</div>
+      <div class="timeline-track track-audio">🎵 音频轨 — 拖入BGM或录音</div>
+      <div class="timeline-track track-text">💬 文字轨 — 炸裂标题 (0:00 – 0:05)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<div class="section-title">
+  <h2>为中国创作者量身打造</h2>
+  <p>7 大痛点，一步到位</p>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <div class="feature-icon">📱</div>
+    <h3>中国平台预设</h3>
+    <p>抖音 9:16 · 小红书 3:4 · B站 16:9 — 一键切换，自动匹配最佳尺寸</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔤</div>
+    <h3>内置中文字体</h3>
+    <p>思源黑体 · 霞鹜文楷 · 阿里普惠体 — CDN 动态加载，开箱即用</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">💬</div>
+    <h3>中文智能字幕</h3>
+    <p>Intl.Segmenter 逐词断句 · Whisper 自动重分块 · 15 字/行最佳阅读</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🎵</div>
+    <h3>免费 BGM 库</h3>
+    <p>6 首内置推荐 + Pixabay 无版权音乐 — 离线自动降级</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">©️</div>
+    <h3>一键品牌水印</h3>
+    <p>文字/图片 · 5 位置 · 透明度可调 · 导出自动叠加</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🎨</div>
+    <h3>16 套中文模板</h3>
+    <p>抖音爆款 · 小红书清新 · B站科技 — 点击即用，不用学设计</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🤖</div>
+    <h3>AI Agent 编辑</h3>
+    <p>"添加文字：大家好" "剪到 15 秒" "导出为抖音" — 说人话就能剪</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🌐</div>
+    <h3>纯 Web 运行</h3>
+    <p>浏览器直接打开 · 无需安装 · Canvas + WebCodecs 导出</p>
+  </div>
+</div>
+
+<div class="footer">
+  Kev-VibeCut · Agent 驱动开源视频编辑器 · <a href="https://kevph2026.github.io/Kev-VibeCut" style="color:var(--accent-glow)">kevph2026.github.io/Kev-VibeCut</a>
+</div>
+
+<script>
+// Interactive platform selector
+document.querySelectorAll('.platform-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const ratio = pill.dataset.ratio;
+    const canvas = document.getElementById('preview-canvas');
+    const dims = {
+      '16:9': [640,360],
+      '9:16': [202,360],
+      '3:4': [270,360],
+      '1:1': [360,360],
+      '21:9': [640,274],
+    };
+    const [w,h] = dims[ratio] || [640,360];
+    canvas.style.width = w+'px';
+    canvas.style.height = h+'px';
+  });
+});
+
+// Init canvas size
+document.getElementById('preview-canvas').style.width = '640px';
+document.getElementById('preview-canvas').style.height = '360px';
+</script>
+
+</body>
+</html>
