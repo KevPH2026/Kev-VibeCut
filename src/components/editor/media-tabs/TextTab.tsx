@@ -18,6 +18,7 @@ import { EffectGrid as NewEffectGrid } from "@/features/text-effects/components/
 import { EffectPreview as NewEffectPreview } from "@/features/text-effects/components/EffectPreview";
 import { useFavoritesStore } from "@/store/favoritesStore";
 import { t } from "@/lib/i18n";
+import { segmentChineseSubtitles, estimateSubtitleDuration, isChineseText } from "@/lib/chineseSubtitleEngine";
 
 /**
  * Generates highly realistic, context-aware subtitle lines based on the active clip filename and path.
@@ -166,8 +167,50 @@ export const TextTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
 
           const segments = result.segments || [];
           if (segments.length > 0) {
-            timeline.withBatch(() => {
-              segments.forEach((seg: any) => {
+            // Check if Whisper output is Chinese → re-segment for better readability
+            const fullText = segments.map((s: any) => s.text).join("");
+            const isChinese = isChineseText(fullText);
+
+            if (isChinese) {
+              // Re-segment using Chinese subtitle engine for natural word breaks
+              const zhSegments = segmentChineseSubtitles(fullText, 15);
+              const totalDuration = segments.reduce((sum: number, s: any) => sum + (s.end - s.start), 0);
+              const charPerSec = totalDuration / Math.max(1, fullText.length);
+
+              let timeOffset = segments[0].start;
+              timeline.withBatch(() => {
+                zhSegments.forEach((zhSeg) => {
+                  const segDuration = Math.max(1.0, zhSeg.charCount * charPerSec);
+                  const relativeStart = timeOffset - mediaClip.trimIn;
+
+                  if (relativeStart >= 0 && relativeStart < mediaClip.duration) {
+                    const startTime = mediaClip.startTime + relativeStart;
+                    const duration = Math.min(segDuration, mediaClip.duration - relativeStart);
+
+                    const textClip = createTextClip({
+                      trackId: targetTrackId!,
+                      startTime,
+                      duration,
+                      text: zhSeg.text,
+                      canvasWidth: project?.canvasWidth || 1920,
+                      canvasHeight: project?.canvasHeight || 1080,
+                      fontSize: 32,
+                      bold: true,
+                      position: "bottom",
+                      styleId: "neon-crimson",
+                      fontFamily: "noto-sans-sc",
+                    });
+
+                    timeline.addClip(textClip);
+                    count++;
+                  }
+                  timeOffset += segDuration;
+                });
+              });
+            } else {
+              // Non-Chinese: use Whisper segments as-is
+              timeline.withBatch(() => {
+                segments.forEach((seg: any) => {
                 // Whisper timestamps are relative to the audio file.
                 // In Clypra, we need to map them relative to the clip's start time on the timeline,
                 // adjusting for any trimIn offsets.
@@ -197,9 +240,10 @@ export const TextTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
                 }
               });
             });
+            }
           }
         } else {
-          // Fallback context mock if not running in Tauri (e.g. browser testing or missing backend)
+          // Web fallback: Chinese demo subtitles with proper word segmentation
           await new Promise((resolve) => setTimeout(resolve, 600));
           setCaptioningState("transcribing");
           setCaptioningProgress(45);
@@ -214,23 +258,31 @@ export const TextTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
 
           await new Promise((resolve) => setTimeout(resolve, 500));
 
-          const nameStr = asset.name || "";
-          const sentences = generateContextualCaptions(nameStr, pathStr, asset.type === "audio");
+          // Chinese demo transcript for web preview
+          const chineseDemo = [
+            "大家好欢迎收看本期视频今天我们聊聊视频剪辑的那些事儿",
+            "如果你觉得剪辑很麻烦其实只是因为没有找到趁手的工具",
+            "Kev-VibeCut 是一款专为中文创作者打造的智能剪辑工具",
+            "不需要学习复杂的操作只需要拖拽素材就能快速出片",
+            "内置了抖音小红书B站等主流平台的最佳导出预设",
+            "还有中文字幕引擎自动帮你生成精准的字幕时间轴",
+          ];
+          const demoText = chineseDemo.join("");
+          const segmented = segmentChineseSubtitles(demoText, 15);
           const clipDuration = mediaClip.duration;
-          const segmentDuration = 2.5;
-          const numSegments = Math.max(1, Math.floor(clipDuration / segmentDuration));
+          const totalSegments = segmented.length;
+          const segmentDuration = clipDuration / totalSegments;
 
           timeline.withBatch(() => {
-            for (let i = 0; i < numSegments; i++) {
+            segmented.forEach((seg, i) => {
               const startTime = mediaClip.startTime + i * segmentDuration;
-              const duration = Math.min(segmentDuration, clipDuration - i * segmentDuration);
-              const sentence = sentences[i % sentences.length];
+              const duration = Math.min(segmentDuration * 1.1, clipDuration - i * segmentDuration);
 
               const textClip = createTextClip({
                 trackId: targetTrackId!,
                 startTime,
                 duration,
-                text: sentence,
+                text: seg.text,
                 canvasWidth: project?.canvasWidth || 1920,
                 canvasHeight: project?.canvasHeight || 1080,
                 fontSize: 32,
@@ -242,7 +294,7 @@ export const TextTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
 
               timeline.addClip(textClip);
               count++;
-            }
+            });
           });
         }
       }
