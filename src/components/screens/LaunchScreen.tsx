@@ -8,6 +8,7 @@ import type { AspectRatio, MediaAsset, Project } from "@/types";
 import { MAX_PROJECT_NAME_LENGTH } from "@/types";
 import { useUIStore } from "@/store/uiStore";
 import { platform } from "@/core/platform";
+import { t } from "@/lib/i18n";
 
 interface LaunchScreenProps {
   onProjectCreate: (name: string, aspectRatio: AspectRatio, frameRate: 24 | 30 | 60) => void;
@@ -123,9 +124,9 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays === 0) return t("launch.today");
+    if (diffDays === 1) return t("launch.yesterday");
+    if (diffDays < 7) return t("launch.daysAgo", { n: String(diffDays) });
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 
@@ -156,11 +157,11 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
             </div>
             <div>
               <h1 className="text-xl font-bold text-text-primary tracking-tight leading-tight">Kev-VibeCut</h1>
-              <p className="text-[11px] text-text-muted font-medium tracking-wide">VIDEO EDITOR</p>
+              <p className="text-[11px] text-text-muted font-medium tracking-wide">{t("app.tagline")}</p>
             </div>
           </div>
 
-          <Button variant="ghost" size="icon-sm" onClick={toggleSettingsModal} title="Settings" style={{ WebkitAppRegion: "no-drag", cursor: "pointer" } as React.CSSProperties}>
+          <Button variant="ghost" size="icon-sm" onClick={toggleSettingsModal} title={t("topbar.settings")} style={{ WebkitAppRegion: "no-drag", cursor: "pointer" } as React.CSSProperties}>
             <Settings className="w-3.5 h-3.5" />
           </Button>
         </header>
@@ -186,13 +187,13 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
             <div className="relative z-10">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-accent text-[11px] font-semibold mb-4">
                 <Sparkles className="w-3 h-3" />
-                Create something amazing
+                {t("launch.createAmazing")}
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight">Start a new project</h2>
-              <p className="text-sm text-text-muted mb-6 max-w-md">Begin with a 16:9 landscape canvas optimized for YouTube and widescreen content, or open a recent project below.</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight">{t("launch.startNew")}</h2>
+              <p className="text-sm text-text-muted mb-6 max-w-md">{t("launch.beginWith")}</p>
               <Button variant="default" size="lg" onClick={handleStartNewProject} className="py-2 px-4 text-base font-semibold rounded-xl transition-all cursor-pointer">
                 <Plus className="mr-1" />
-                New Project
+                {t("launch.newProject")}
               </Button>
             </div>
           </div>
@@ -202,14 +203,14 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
         <section className="flex-1">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-4 h-4 text-text-muted" />
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">Recent Projects</h3>
+            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">{t("launch.recentProjects")}</h3>
           </div>
 
           {recentProjects.length === 0 ? (
             <div className="rounded-xl border border-dashed border-white/6 p-10 flex flex-col items-center justify-center text-center">
               <Film className="w-10 h-10 text-text-muted/30 mb-3" />
-              <p className="text-sm text-text-muted">No recent projects</p>
-              <p className="text-xs text-text-muted/60 mt-1">Create a new project to get started</p>
+              <p className="text-sm text-text-muted">{t("launch.noRecent")}</p>
+              <p className="text-xs text-text-muted/60 mt-1">{t("launch.startHint")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -259,7 +260,7 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
 
                     {/* More options button */}
                     <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div onClick={(e) => handleToggleMenu(e, project.id)} className="p-1.5 rounded-lg bg-bg/80 backdrop-blur-sm border border-white/4 hover:bg-surface-raised hover:border-white/8 cursor-pointer transition-colors" title="More options">
+                      <div onClick={(e) => handleToggleMenu(e, project.id)} className="p-1.5 rounded-lg bg-bg/80 backdrop-blur-sm border border-white/4 hover:bg-surface-raised hover:border-white/8 cursor-pointer transition-colors" title={t("launch.moreOptions")}>
                         <MoreHorizontal className="w-3.5 h-3.5 text-text-muted" />
                       </div>
 
@@ -268,11 +269,11 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
                         <div ref={menuRef} className="absolute top-full left-0 mt-1 z-50 min-w-[140px] rounded-lg border border-border bg-surface py-1 shadow-xl overflow-hidden">
                           <button onClick={(e) => handleRenameClick(e, project)} className="w-full px-3 py-2 text-left flex items-center gap-2 text-sm text-text-primary hover:bg-surface-raised transition-colors cursor-pointer">
                             <Pencil className="w-3.5 h-3.5" />
-                            Rename
+                            {t("launch.rename")}
                           </button>
                           <button onClick={(e) => handleDeleteClick(e, project)} className="w-full px-3 py-2 text-left flex items-center gap-2 text-sm text-danger hover:bg-surface-raised transition-colors cursor-pointer">
                             <Trash2 className="w-3.5 h-3.5" />
-                            Delete
+                            {t("launch.delete")}
                           </button>
                         </div>
                       )}
@@ -286,7 +287,7 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
       </div>
 
       {/* Rename Modal */}
-      <Modal isOpen={!!projectToRename} onClose={() => setProjectToRename(null)} title="Rename Project">
+      <Modal isOpen={!!projectToRename} onClose={() => setProjectToRename(null)} title={t("launch.renameProject")}>
         <div className="p-5 space-y-4">
           <div>
             <input
@@ -298,7 +299,7 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
               }}
               autoFocus
               className="w-full px-3 py-2 rounded-lg bg-bg border border-border text-sm text-text-primary focus:outline-none focus:border-accent transition-colors"
-              placeholder="Project name"
+              placeholder={t("launch.projectName")}
             />
             <div className="flex justify-end mt-1">
               <span className={`text-[10px] font-medium ${countGraphemes(renameValue) > MAX_PROJECT_NAME_LENGTH ? "text-danger" : "text-text-muted/60"}`}>
@@ -308,29 +309,29 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
           </div>
           <div className="flex gap-3 justify-end pt-2">
             <Button variant="ghost" onClick={() => setProjectToRename(null)} disabled={isRenaming}>
-              Cancel
+              {t("launch.cancel")}
             </Button>
             <Button variant="default" onClick={handleConfirmRename} disabled={isRenaming || !renameValue.trim() || countGraphemes(renameValue) > MAX_PROJECT_NAME_LENGTH}>
-              {isRenaming ? "Renaming..." : "Rename"}
+              {isRenaming ? t("launch.renaming") : t("launch.rename")}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={!!projectToDelete} onClose={() => setProjectToDelete(null)} title="Delete Project">
+      <Modal isOpen={!!projectToDelete} onClose={() => setProjectToDelete(null)} title={t("launch.deleteProject")}>
         <div className="p-5 space-y-4">
           <p className="text-sm text-text-primary">
-            Are you sure you want to delete <strong>{projectToDelete?.name}</strong>?
+            {t("launch.deleteConfirm", { name: projectToDelete?.name || "" })}
           </p>
-          <p className="text-xs text-text-muted">This action cannot be undone. All project data will be permanently deleted.</p>
+          <p className="text-xs text-text-muted">{t("launch.deleteUndone")}</p>
 
           <div className="flex gap-3 justify-end pt-2">
             <Button variant="secondary" className="cursor-pointer" onClick={() => setProjectToDelete(null)} disabled={isDeleting}>
-              Cancel
+              {t("launch.cancel")}
             </Button>
             <Button variant="default" onClick={handleConfirmDelete} disabled={isDeleting} className="bg-danger hover:bg-danger/80 cursor-pointer">
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("launch.deleting") : t("launch.delete")}
             </Button>
           </div>
         </div>

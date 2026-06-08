@@ -17,6 +17,7 @@ import type { MediaAsset } from "@/types";
 import { useUIStore } from "@/store/uiStore";
 import { useAudioLibraryStore } from "@/features/audio-library/store/audioLibraryStore";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { t } from "@/lib/i18n";
 
 export const EditorLayout: React.FC = () => {
   const { width } = useWindowSize();
@@ -198,7 +199,7 @@ export const EditorLayout: React.FC = () => {
       const selectedPair = selectedClipIds.length === 2 ? ([selectedClipIds[0], selectedClipIds[1]] as const) : null;
       const pair = selectedPair ?? findAdjacentClipsAtPlayhead();
       if (!pair) {
-        useProjectStore.getState().showToast("Select two adjacent clips or place the playhead at a cut", "warning");
+        useProjectStore.getState().showToast(t("editor.selectAdjacentClips"), "warning");
         return;
       }
       const transitionType = item?.preview === "dissolve" || item?.name?.toLowerCase?.() === "dissolve" ? "dissolve" : "fade";
@@ -206,7 +207,7 @@ export const EditorLayout: React.FC = () => {
       if (result.error) {
         useProjectStore.getState().showToast(result.error, "warning");
       } else {
-        useProjectStore.getState().showToast(`${item?.name || "Transition"} added`);
+        useProjectStore.getState().showToast(t("editor.transitionAdded", { name: item?.name || "Transition" }));
       }
     } else {
       // Handle other types (stickers, effects, captions)

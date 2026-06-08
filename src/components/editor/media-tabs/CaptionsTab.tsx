@@ -8,6 +8,7 @@ import { createTextClip } from "@/lib/textClip";
 import { parseSubtitles, serializeSubtitles, formatSubtitleTime } from "@/features/subtitles/parser";
 import type { TabProps } from "./types";
 import type { TextClip } from "@/types";
+import { t } from "@/lib/i18n";
 
 export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
   const { clips, tracks, addClip, removeClip, updateClip, withBatch } = useTimelineStore();
@@ -173,7 +174,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
           onClick={handleImportClick}
         >
           <Upload className="w-3.5 h-3.5 text-accent" />
-          Import Subtitles
+          {t("captions.importSubtitles")}
         </Button>
         <Button
           variant="secondary"
@@ -183,7 +184,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
           disabled={captionClips.length === 0}
         >
           <Download className="w-3.5 h-3.5 text-accent" />
-          Export SRT
+          {t("captions.exportSRT")}
         </Button>
       </div>
 
@@ -195,7 +196,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
           onClick={handleAddManualCaption}
         >
           <Plus className="w-4 h-4" />
-          Add Manual Caption
+          {t("captions.addManual")}
         </Button>
       </div>
 
@@ -210,7 +211,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
       <div className="flex-1 flex flex-col min-h-0 pt-2 border-t border-border">
         <div className="flex justify-between items-center mb-2">
           <h4 className="text-xs font-semibold text-text-muted">
-            Caption Timing Editor ({captionClips.length})
+            {t("captions.timingEditor", { n: String(captionClips.length) })}
           </h4>
         </div>
 
@@ -218,7 +219,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
           {captionClips.length === 0 ? (
             <div className="h-40 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border rounded-xl">
               <p className="text-xs text-text-muted max-w-[200px]">
-                No captions on the timeline. Click Add Manual or Import to begin.
+                {t("captions.noCaptions")}
               </p>
             </div>
           ) : (
@@ -236,7 +237,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
                     <button
                       onClick={() => seek(clip.startTime)}
                       className="flex items-center gap-1 hover:text-accent font-medium transition-colors"
-                      title="Jump Playhead to Start"
+                      title={t("captions.jumpPlayhead")}
                     >
                       <Play className="w-2.5 h-2.5 fill-current" />
                       {formatSubtitleTime(clip.startTime, "vtt").slice(3)}
@@ -248,7 +249,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
                   <button
                     onClick={() => removeClip(clip.id)}
                     className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-destructive transition-all duration-200"
-                    title="Delete Caption"
+                    title={t("captions.deleteCaption")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -259,13 +260,13 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
                   value={clip.text}
                   onChange={(e) => handleTextChange(clip.id, e.target.value)}
                   className="w-full min-h-[50px] p-2 bg-background/50 focus:bg-background border border-border/50 focus:border-accent rounded-lg text-xs text-text-primary resize-none outline-none transition-colors"
-                  placeholder="Enter subtitle text..."
+                  placeholder={t("captions.enterText")}
                 />
 
                 {/* Micro Timing controls */}
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div className="flex items-center gap-1.5">
-                    <span className="shrink-0 text-text-muted">Start:</span>
+                    <span className="shrink-0 text-text-muted">{t("captions.start")}</span>
                     <input
                       type="number"
                       step="0.1"
@@ -277,7 +278,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
                     />
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="shrink-0 text-text-muted">Duration:</span>
+                    <span className="shrink-0 text-text-muted">{t("captions.duration")}</span>
                     <input
                       type="number"
                       step="0.1"

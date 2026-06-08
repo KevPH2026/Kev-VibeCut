@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, RefObject } from "react";
 import { useDragLayer } from "react-dnd";
 import { listen } from "@tauri-apps/api/event";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { platform } from "@/core/platform";
 import { useTimelineStore } from "@/store/timelineStore";
 import { useProjectStore } from "@/store/projectStore";
 import { generateId } from "@/lib/id";
@@ -129,14 +130,17 @@ export function useTimelineTauriDrop(containerRef: RefObject<HTMLDivElement | nu
     [addMediaAsset, addClip, addTrack, project, updateProject],
   );
 
-  // Listen for drag events and handle file drops
+  // Listen for drag events and handle file drops (Tauri only)
   useEffect(() => {
+    if (!platform.isTauri()) return;
+
     let unlistenHover: (() => void) | undefined;
     let unlistenDrop: (() => void) | undefined;
     let unlistenCancel: (() => void) | undefined;
 
     const setupListener = async () => {
       try {
+        const { listen } = await import("@tauri-apps/api/event");
         // Listen for drag over
         unlistenHover = await listen<{ position: { x: number; y: number } }>("tauri://drag-over", (event) => {
           if (!containerRef.current) return;

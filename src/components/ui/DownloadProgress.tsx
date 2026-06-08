@@ -6,6 +6,7 @@
 import React from "react";
 import { Download, CheckCircle, AlertCircle, X } from "lucide-react";
 import type { DownloadState } from "@/features/audio-library/store/audioLibraryStore";
+import { t } from "@/lib/i18n";
 
 interface DownloadProgressProps {
   state: DownloadState;
@@ -28,13 +29,13 @@ export const DownloadProgress: React.FC<DownloadProgressProps> = ({ state, itemN
         {state.status === "completed" && (
           <>
             <CheckCircle className="h-3 w-3 text-green-400" />
-            <span className="text-green-400 font-medium">Cached</span>
+            <span className="text-green-400 font-medium">{t("download.cached")}</span>
           </>
         )}
         {state.status === "error" && (
           <>
             <AlertCircle className="h-3 w-3 text-red-400" />
-            <span className="text-red-400 font-medium">Failed</span>
+            <span className="text-red-400 font-medium">{t("download.failedShort")}</span>
           </>
         )}
       </div>
@@ -50,9 +51,9 @@ export const DownloadProgress: React.FC<DownloadProgressProps> = ({ state, itemN
           {state.status === "completed" && <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />}
           {state.status === "error" && <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />}
           <h4 className="text-sm font-semibold text-text-primary">
-            {state.status === "downloading" && "Downloading Audio"}
-            {state.status === "completed" && "Download Complete"}
-            {state.status === "error" && "Download Failed"}
+            {state.status === "downloading" && t("download.downloading")}
+            {state.status === "completed" && t("download.complete")}
+            {state.status === "error" && t("download.failed")}
           </h4>
         </div>
         {onClose && (
@@ -73,7 +74,7 @@ export const DownloadProgress: React.FC<DownloadProgressProps> = ({ state, itemN
         </>
       )}
 
-      {state.status === "completed" && <p className="text-xs text-green-400">Audio ready for use</p>}
+      {state.status === "completed" && <p className="text-xs text-green-400">{t("download.ready")}</p>}
 
       {state.status === "error" && state.error && <p className="text-xs text-red-400">{state.error}</p>}
     </div>

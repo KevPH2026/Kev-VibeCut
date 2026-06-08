@@ -17,6 +17,7 @@ import type { MediaTabProps } from "./types";
 import { generateId } from "@/lib/id";
 import { SuccessToast } from "@/components/ui/SuccessToast";
 import { MediaCard } from "@/components/ui/MediaCard";
+import { t } from "@/lib/i18n";
 
 export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
   const { mediaAssets, removeMediaAsset, addMediaAsset } = useProjectStore();
@@ -89,7 +90,7 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
           }
         } catch (error) {
           console.error(`[MediaTab] Failed to import ${file.name}:`, error);
-          useProjectStore.getState().showToast(`Failed to import ${file.name}`, "error");
+          useProjectStore.getState().showToast(t("media.importFailedFile", { name: file.name }), "error");
         }
       }
     },
@@ -107,13 +108,13 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
       <div className="p-1 border-b border-border">
         <Button variant="secondary" size="sm" className="w-full border-dashed cursor-pointer" onClick={importMedia} disabled={isLoading}>
           <CloudUpload className="w-4 h-4" />
-          {isLoading ? "Importing..." : "Import Media"}
+          {isLoading ? t("media.importing") : t("media.importMedia")}
         </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-thin">
         {mediaAssets.length === 0 ? (
-          <EmptyState icon={CloudUpload} title="No media imported" description="Import videos, audio, or images to get started" />
+          <EmptyState icon={CloudUpload} title={t("media.noMedia")} description={t("media.getStarted")} />
         ) : (
           <div className="grid grid-cols-2 gap-2 p-3">
             {mediaAssets.map((asset) => (
@@ -139,7 +140,7 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
           items={[
             usedMediaIds.has(contextMenu.mediaId)
               ? {
-                  label: "Remove from Timeline",
+                  label: t("media.removeFromTimeline"),
                   onClick: () => {
                     const { normalizeTrack, removeEmptyNonMainTracks, withBatch } = useTimelineStore.getState();
                     const { execute, beginTransaction, commitTransaction } = useHistoryStore.getState();
@@ -166,13 +167,13 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
                   },
                 }
               : {
-                  label: "Add to Track",
+                  label: t("media.addToTrack"),
                   onClick: () => {
                     const asset = mediaAssets.find((a) => a.id === contextMenu.mediaId);
                     if (asset) onAddToTimeline?.(asset, "media");
                   },
                 },
-            { label: "Delete", onClick: () => removeMediaAsset(contextMenu.mediaId), danger: true },
+            { label: t("general.delete"), onClick: () => removeMediaAsset(contextMenu.mediaId), danger: true },
           ]}
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}

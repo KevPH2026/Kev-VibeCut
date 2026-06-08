@@ -69,7 +69,7 @@ const truncateGraphemes = (str: string, max: number): string => {
 
 const sanitizeProjectName = (name: string): string => {
   const trimmed = name.trim();
-  if (countGraphemes(trimmed) === 0) return "Untitled Project";
+  if (countGraphemes(trimmed) === 0) return "未命名项目";
   if (countGraphemes(trimmed) > MAX_PROJECT_NAME_LENGTH) {
     return truncateGraphemes(trimmed, MAX_PROJECT_NAME_LENGTH);
   }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Music, Smile, Wand2, Shuffle, MessageSquare } from "lucide-react";
 import { MediaTab, AudioTab, TextTab, StickersTab, EffectsTab, TransitionsTab, CaptionsTab, type TabType, MediaTabProps } from "../media-tabs";
 import { TextIcon, YouTubeIcon } from "../../ui/icons";
+import { t } from "@/lib/i18n";
 
 export const EnhancedMediaPanel: React.FC<MediaTabProps> = ({ onAddToTimeline, initialTab = "media" }) => {
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
@@ -11,13 +12,13 @@ export const EnhancedMediaPanel: React.FC<MediaTabProps> = ({ onAddToTimeline, i
   }, [initialTab]);
 
   const tabs = [
-    { id: "media" as const, icon: YouTubeIcon, label: "Media" },
-    { id: "audio" as const, icon: Music, label: "Audio" },
-    { id: "text" as const, icon: TextIcon, label: "Text" },
-    { id: "stickers" as const, icon: Smile, label: "Stickers" },
-    { id: "effects" as const, icon: Wand2, label: "Effects" },
-    { id: "transitions" as const, icon: Shuffle, label: "Transitions" },
-    { id: "captions" as const, icon: MessageSquare, label: "Captions" },
+    { id: "media" as const, icon: YouTubeIcon, label: t("tab.media") },
+    { id: "audio" as const, icon: Music, label: t("tab.audio") },
+    { id: "text" as const, icon: TextIcon, label: t("tab.text") },
+    { id: "stickers" as const, icon: Smile, label: t("tab.stickers") },
+    { id: "effects" as const, icon: Wand2, label: t("tab.effects") },
+    { id: "transitions" as const, icon: Shuffle, label: t("tab.transitions") },
+    { id: "captions" as const, icon: MessageSquare, label: t("tab.captions") },
   ];
 
   return (

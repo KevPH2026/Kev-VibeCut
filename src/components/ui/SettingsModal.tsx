@@ -5,6 +5,7 @@ import { Modal } from "./Modal";
 import { useSettingsStore, Theme, FontFamily, THEME_META, FONT_META, getThemeColors, getBaseThemeForCustomization, getThemeColorKeys } from "@/store/settingsStore";
 import { useProjectStore } from "@/store/projectStore";
 import { CacheSettings } from "@/components/settings/CacheSettings";
+import { t } from "@/lib/i18n";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,10 +15,10 @@ interface SettingsModalProps {
 type Tab = "appearance" | "editor" | "cache" | "about";
 
 const TABS: { id: Tab; label: string; icon: React.FC<{ className?: string }> }[] = [
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "editor", label: "Editor", icon: SlidersHorizontal },
-  { id: "cache", label: "Storage & Cache", icon: HardDrive },
-  { id: "about", label: "About", icon: Info },
+  { id: "appearance", label: t("settings.appearance"), icon: Palette },
+  { id: "editor", label: t("settings.editor"), icon: SlidersHorizontal },
+  { id: "cache", label: t("settings.cache"), icon: HardDrive },
+  { id: "about", label: t("settings.about"), icon: Info },
 ];
 
 // ─── Enhanced theme preview with timeline ────────────────────────────────
@@ -219,16 +220,16 @@ function CustomThemeEditor() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-white/6">
-        <h3 className="text-[13px] font-semibold text-text-primary">Custom Theme Editor</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary">{t("settings.customThemeEditor")}</h3>
         {/* Import/Export buttons in header */}
         <div className="flex items-center gap-2">
-          <button onClick={handleImport} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-accent hover:border-accent/40 transition-colors" title="Import theme from JSON file">
+          <button onClick={handleImport} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-accent hover:border-accent/40 transition-colors" title={t("settings.importThemeHint")}>
             <Upload className="w-3.5 h-3.5" />
-            Import
+            {t("settings.import")}
           </button>
-          <button onClick={handleExport} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-accent hover:border-accent/40 transition-colors" title="Export theme to JSON file">
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-accent hover:border-accent/40 transition-colors" title={t("settings.exportThemeHint")}>
             <Download className="w-3.5 h-3.5" />
-            Export
+            {t("settings.exportTheme")}
           </button>
         </div>
       </div>
@@ -237,7 +238,7 @@ function CustomThemeEditor() {
       <div className="flex items-center justify-between gap-3">
         {/* Base theme group */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-medium text-text-muted uppercase tracking-wide">Base:</span>
+          <span className="text-[10px] font-medium text-text-muted uppercase tracking-wide">{t("settings.base")}</span>
           <div className="relative">
             <select value={baseTheme} onChange={(e) => handleBaseThemeChange(e.target.value as Exclude<Theme, "custom">)} className="appearance-none text-[11px] pl-3 pr-8 py-1.5 rounded-md bg-surface-raised border border-white/6 text-text-primary hover:border-white/12 transition-colors cursor-pointer focus:outline-none focus:border-accent/40">
               <option value="dark">Dark</option>
@@ -251,21 +252,21 @@ function CustomThemeEditor() {
               </svg>
             </div>
           </div>
-          <button onClick={handleCopyFromBase} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-text-primary hover:border-white/12 transition-colors" title="Copy all colors from selected base theme">
+          <button onClick={handleCopyFromBase} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-text-primary hover:border-white/12 transition-colors" title={t("settings.copyAllColors")}>
             <Copy className="w-3.5 h-3.5" />
-            Copy
+            {t("settings.copy")}
           </button>
         </div>
 
         {/* Reset button */}
-        <button onClick={handleReset} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-danger hover:border-danger/40 transition-colors" title="Reset to default dark theme">
+        <button onClick={handleReset} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-surface-raised border border-white/6 text-text-muted hover:text-danger hover:border-danger/40 transition-colors" title={t("settings.resetToDefault")}>
           <RotateCcw className="w-3.5 h-3.5" />
-          Reset
+          {t("settings.reset")}
         </button>
       </div>
 
       {/* Search */}
-      <input type="text" placeholder="Search colors..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full px-3 py-2 text-[12px] rounded-lg bg-surface-raised border border-white/6 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/40" />
+      <input type="text" placeholder={t("settings.searchColors")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full px-3 py-2 text-[12px] rounded-lg bg-surface-raised border border-white/6 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/40" />
 
       {/* Color groups */}
       <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2 scrollbar-thin">
@@ -293,7 +294,7 @@ function CustomThemeEditor() {
 
       {/* Apply button */}
       <button onClick={handleApply} className="w-full py-2 px-4 text-[12px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-soft transition-colors">
-        Apply Custom Theme
+        {t("settings.applyCustomTheme")}
       </button>
     </div>
   );
@@ -311,10 +312,10 @@ function AppearanceTab() {
       {/* Themes */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Theme</h3>
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">{t("settings.theme")}</h3>
           <button onClick={() => setShowCustomEditor(!showCustomEditor)} className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${showCustomEditor ? "bg-accent/15 text-accent border border-accent/40" : "bg-surface-raised border border-white/6 text-text-muted hover:text-text-primary"}`}>
             <Paintbrush className="w-3 h-3" />
-            {showCustomEditor ? "Hide Editor" : "Custom Theme"}
+            {showCustomEditor ? t("settings.hideEditor") : t("settings.customTheme")}
           </button>
         </div>
 
@@ -332,7 +333,7 @@ function AppearanceTab() {
 
       {/* Font Family */}
       <section>
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">Font</h3>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">{t("settings.font")}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {fontKeys.map((f) => {
             const meta = FONT_META[f];
@@ -389,12 +390,12 @@ function EditorTab() {
   return (
     <div className="space-y-6">
       <section>
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">Timeline</h3>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">{t("settings.timeline")}</h3>
         <div className="space-y-3">
-          <SettingRow label="Snap to grid" description="Clips snap to ruler ticks when dragging">
+          <SettingRow label={t("settings.snapToGrid")} description={t("settings.snapToGridDesc")}>
             <ToggleSwitch checked={snapToGrid} onChange={setSnapToGrid} />
           </SettingRow>
-          <SettingRow label="Auto-ripple" description="Automatically close gaps when deleting clips">
+          <SettingRow label={t("settings.autoRipple")} description={t("settings.autoRippleDesc")}>
             <ToggleSwitch checked={autoRipple} onChange={setAutoRipple} />
           </SettingRow>
         </div>
@@ -402,9 +403,9 @@ function EditorTab() {
 
       {project && (
         <section>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">Sequence Settings</h3>
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">{t("settings.sequenceSettings")}</h3>
           <div className="space-y-3">
-            <SettingRow label="Aspect ratio" description="Canvas dimensions for export">
+            <SettingRow label={t("settings.aspectRatio")} description={t("settings.aspectRatioDesc")}>
               <div className="flex flex-col gap-1.5">
                 <div className="flex rounded-lg overflow-hidden border border-white/6">
                   {aspectRatios.map((ar) => (
@@ -418,7 +419,7 @@ function EditorTab() {
                 </div>
               </div>
             </SettingRow>
-            <SettingRow label="Frame rate" description="Frames per second for this project">
+            <SettingRow label={t("settings.frameRate")} description={t("settings.frameRateDesc")}>
               <div className="flex rounded-lg overflow-hidden border border-white/6">
                 {frameRates.map((fr) => (
                   <button key={fr.value} onClick={() => updateProject({ frameRate: fr.value })} className={`px-3 py-1 text-[11px] font-semibold transition-colors ${project.frameRate === fr.value ? "bg-accent text-white" : "bg-surface-raised text-text-muted hover:text-text-primary hover:bg-white/6"}`}>
@@ -433,12 +434,12 @@ function EditorTab() {
       )}
 
       <section>
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">Defaults</h3>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-3">{t("settings.defaults")}</h3>
         <div className="space-y-3">
-          <SettingRow label="Auto-save" description="Periodically save project state">
+          <SettingRow label={t("settings.autoSave")} description={t("settings.autoSaveDesc")}>
             <ToggleSwitch checked={autoSave} onChange={setAutoSave} />
           </SettingRow>
-          <SettingRow label="Default frame rate" description="Frame rate for new projects">
+          <SettingRow label={t("settings.defaultFrameRate")} description={t("settings.defaultFrameRateDesc")}>
             <div className="flex rounded-lg overflow-hidden border border-white/6">
               {frameRates.map((fr) => (
                 <button key={fr.value} onClick={() => setDefaultFrameRate(fr.value)} className={`px-3 py-1 text-[11px] font-semibold transition-colors ${defaultFrameRate === fr.value ? "bg-accent text-white" : "bg-surface-raised text-text-muted hover:text-text-primary hover:bg-white/6"}`}>
@@ -499,7 +500,7 @@ function AboutTab() {
         <h3 className="text-lg font-bold text-text-primary">Kev-VibeCut</h3>
         <p className="text-xs text-text-muted mt-1">Version 1.0.1</p>
       </div>
-      <p className="text-xs text-text-muted max-w-[280px] leading-relaxed">A modern, native video editor built with Tauri, React, and FFmpeg. Designed for speed and creative freedom.</p>
+      <p className="text-xs text-text-muted max-w-[280px] leading-relaxed">{t("settings.aboutDesc")}</p>
       <div className="flex items-center gap-4 mt-2">
         <button onClick={() => openUrl("https://github.com/AIEraDev/clypra")} className="text-xs font-medium text-text-muted hover:text-accent transition-colors flex items-center gap-1.5">
           <GithubIcon className="w-3.5 h-3.5" />
@@ -527,7 +528,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [activeTab, setActiveTab] = useState<Tab>("appearance");
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Settings" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t("settings.title")} size="lg">
       <div className="flex flex-col md:flex-row min-h-[420px]">
         {/* Sidebar */}
         <div className="w-full md:w-[160px] shrink-0 border-b md:border-b-0 md:border-r border-white/6 p-2 flex flex-row md:flex-col gap-1 overflow-x-auto scrollbar-none">
