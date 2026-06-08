@@ -493,10 +493,10 @@ function AboutTab() {
     <div className="flex flex-col items-center text-center py-6 gap-4">
       <div className="w-16 h-16 flex items-center justify-center relative">
         <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full"></div>
-        <img src="/clypra.svg" alt="Clypra Logo" className="w-16 h-16 object-contain relative z-10 drop-shadow-xl" />
+        <img src="/clypra.svg" alt="Kev-VibeCut Logo" className="w-16 h-16 object-contain relative z-10 drop-shadow-xl" />
       </div>
       <div>
-        <h3 className="text-lg font-bold text-text-primary">Clypra</h3>
+        <h3 className="text-lg font-bold text-text-primary">Kev-VibeCut</h3>
         <p className="text-xs text-text-muted mt-1">Version 1.0.1</p>
       </div>
       <p className="text-xs text-text-muted max-w-[280px] leading-relaxed">A modern, native video editor built with Tauri, React, and FFmpeg. Designed for speed and creative freedom.</p>

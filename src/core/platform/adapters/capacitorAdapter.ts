@@ -109,7 +109,7 @@ export class CapacitorPlatformAdapter implements PlatformInterface {
       return projects.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     } catch (err) {
       console.warn("Failed to read projects from Capacitor Filesystem, falling back to localStorage", err);
-      const fallback = localStorage.getItem("clypra_recent_projects");
+      const fallback = localStorage.getItem("kev-vibecut_recent_projects");
       return fallback ? JSON.parse(fallback) : [];
     }
   }
@@ -129,7 +129,7 @@ export class CapacitorPlatformAdapter implements PlatformInterface {
     } catch (err) {
       // LocalStorage fallback for debug
       const projectId = path.split("/").pop()?.replace(".json", "") || "";
-      const project = localStorage.getItem(`clypra_project_${projectId}`);
+      const project = localStorage.getItem(`kev-vibecut_project_${projectId}`);
       if (project) return project;
       throw err;
     }
@@ -148,11 +148,11 @@ export class CapacitorPlatformAdapter implements PlatformInterface {
       });
 
       // Save recent list to helper meta or update the project list cache
-      localStorage.setItem("clypra_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
+      localStorage.setItem("kev-vibecut_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
     } catch (err) {
       console.warn("Capacitor Filesystem save failed, saving to localStorage:", err);
-      localStorage.setItem(`clypra_project_${projectId}`, payload);
-      localStorage.setItem("clypra_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
+      localStorage.setItem(`kev-vibecut_project_${projectId}`, payload);
+      localStorage.setItem("kev-vibecut_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
     }
   }
 
@@ -164,7 +164,7 @@ export class CapacitorPlatformAdapter implements PlatformInterface {
         directory: Directory.Data,
       });
     } catch (err) {
-      localStorage.removeItem(`clypra_project_${projectId}`);
+      localStorage.removeItem(`kev-vibecut_project_${projectId}`);
     }
   }
 
@@ -176,7 +176,7 @@ export class CapacitorPlatformAdapter implements PlatformInterface {
     project.updatedAt = new Date().toISOString();
     
     // Retrieve current recent projects from storage to reconstruct list
-    const fallback = localStorage.getItem("clypra_recent_projects");
+    const fallback = localStorage.getItem("kev-vibecut_recent_projects");
     const recentProjects = fallback ? JSON.parse(fallback) : [];
     const list = recentProjects.map((p: any) => p.id === projectId ? { ...p, name: newName } : p);
 

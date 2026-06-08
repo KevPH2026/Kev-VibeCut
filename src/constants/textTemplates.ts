@@ -218,7 +218,7 @@ export const TEXT_TEMPLATES: TextTemplatePreset[] = [
     id: "template-terminal",
     name: "CRT Terminal Prompt",
     category: "Retro",
-    defaultText: "clypra --render-scene",
+    defaultText: "kev-vibecut --render-scene",
     overlayType: "terminal",
     fontFamily: "Inter",
     color: "#39ff14",

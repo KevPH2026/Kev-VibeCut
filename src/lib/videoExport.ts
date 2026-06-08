@@ -12,6 +12,7 @@ import { invoke, Channel, convertFileSrc } from "@tauri-apps/api/core";
 import { normalizePathForTauriInvoke } from "./tauri";
 import { getFrameScheduler } from "../core/scheduler/FrameScheduler";
 import { VideoElementPool } from "../core/resources/VideoElementPool";
+import { platform } from "@/core/platform";
 import type { Clip, Track, MediaAsset, Project, TransitionTimelineItem } from "../types";
 
 /**
@@ -120,6 +121,11 @@ export interface VideoExportResult {
  */
 export async function exportVideo(config: VideoExportConfig): Promise<VideoExportResult> {
   const { clips, tracks, transitions = [], assets, project, epoch, startTime, endTime, outputPath, frameRate = project?.frameRate || 30, width = project?.canvasWidth || 1920, height = project?.canvasHeight || 1080, codec = "h264", preset = "medium", crf = 23, pixelFormat = "yuv420p", onProgress } = config;
+
+  // Web platform: use canvas-based MediaRecorder export (no FFmpeg / Tauri)
+  if (!platform.isTauri()) {
+    return exportWeb(config);
+  }
 
   const startTimeMs = Date.now();
 
@@ -373,5 +379,161 @@ export function getExportPresets() {
       crf: 0,
       pixelFormat: "yuv422p10le" as const,
     },
+  };
+}
+
+/**
+ * Web-only video export using canvas.captureStream() + MediaRecorder.
+ *
+ * Renders frames via the frame scheduler, draws them to an offscreen
+ * canvas, and records the canvas stream as a WebM video. When complete,
+ * triggers a browser download.
+ *
+ * @param config - Export configuration (outputPath is used as filename stem)
+ * @returns Export result
+ */
+async function exportWeb(config: VideoExportConfig): Promise<VideoExportResult> {
+  const {
+    clips,
+    tracks,
+    transitions = [],
+    assets,
+    project,
+    epoch,
+    startTime,
+    endTime,
+    outputPath,
+    frameRate = project?.frameRate || 30,
+    width = project?.canvasWidth || 1920,
+    height = project?.canvasHeight || 1080,
+    onProgress,
+  } = config;
+
+  const totalFrames = Math.round((endTime - startTime) * frameRate);
+  if (totalFrames === 0) {
+    throw new Error("No frames to export");
+  }
+
+  const startTimeMs = Date.now();
+
+  // ── Canvas setup ──────────────────────────────────────────────────
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Failed to get 2D canvas context for export");
+  }
+
+  // ── Scheduler setup ───────────────────────────────────────────────
+  const scheduler = getFrameScheduler();
+  scheduler.updateTimeline(clips, tracks, assets, project, epoch, transitions);
+
+  // ── MediaRecorder setup ───────────────────────────────────────────
+  const stream = canvas.captureStream(frameRate);
+  const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+    ? "video/webm;codecs=vp9"
+    : "video/webm";
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType,
+    videoBitsPerSecond: 8_000_000, // 8 Mbps
+  });
+
+  const chunks: Blob[] = [];
+  recorder.ondataavailable = (e: BlobEvent) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+    }
+  };
+
+  // ── Start recording ───────────────────────────────────────────────
+  recorder.start();
+
+  // Helper: draw ImageData onto the canvas (MediaRecorder captures it)
+  const drawFrame = (imageData: ImageData) => {
+    ctx.putImageData(imageData, 0, 0);
+  };
+
+  const frameIntervalMs = 1000 / frameRate;
+
+  // ── Render loop ──────────────────────────────────────────────────
+  for (let i = 0; i < totalFrames; i++) {
+    const time = startTime + i / frameRate;
+    const frameStart = performance.now();
+
+    // Schedule and wait for frame render
+    const jobId = scheduler.schedule({
+      time,
+      resolution: { width, height },
+      pixelRatio: 1,
+      outputFormat: "imagedata",
+      priority: "export",
+    });
+
+    const result = await scheduler.wait(jobId);
+
+    if (!(result.data instanceof ImageData)) {
+      throw new Error("Expected ImageData output from scheduler for web export");
+    }
+
+    // Draw frame to canvas (MediaRecorder captures this)
+    drawFrame(result.data);
+
+    // Progress reporting
+    if (onProgress) {
+      const elapsedSec = (Date.now() - startTimeMs) / 1000;
+      const currentFps = (i + 1) / Math.max(elapsedSec, 0.001);
+      const remainingFrames = totalFrames - i - 1;
+      onProgress({
+        currentFrame: i + 1,
+        totalFrames,
+        progress: (i + 1) / totalFrames,
+        etaSeconds: remainingFrames / Math.max(currentFps, 0.001),
+        fps: currentFps,
+      });
+    }
+
+    // Wait to match real-time frame interval (last frame doesn't need delay)
+    if (i < totalFrames - 1) {
+      const renderElapsed = performance.now() - frameStart;
+      const delay = frameIntervalMs - renderElapsed;
+      if (delay > 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  // ── Stop recording ───────────────────────────────────────────────
+  const blob = await new Promise<Blob>((resolve) => {
+    recorder.onstop = () => {
+      const videoBlob = new Blob(chunks, { type: mimeType });
+      resolve(videoBlob);
+    };
+    recorder.stop();
+  });
+
+  // ── Trigger browser download ─────────────────────────────────────
+  const url = URL.createObjectURL(blob);
+  const filename =
+    outputPath
+      ? outputPath.replace(/\.[^/.]+$/, "") + ".webm"
+      : `export-${Date.now()}.webm`;
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  // ── Return result ────────────────────────────────────────────────
+  const totalTimeMs = Date.now() - startTimeMs;
+  return {
+    outputPath: filename,
+    totalFrames,
+    totalTimeMs,
+    avgTimePerFrameMs: totalFrames > 0 ? totalTimeMs / totalFrames : 0,
+    cancelled: false,
   };
 }

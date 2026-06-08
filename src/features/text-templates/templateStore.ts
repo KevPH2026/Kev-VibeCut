@@ -37,7 +37,7 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
   templates: [],
   selectedTemplate: null,
   customization: {
-    primaryText: "Clypra",
+    primaryText: "Kev-VibeCut",
     secondaryText: "",
     accentText: "",
   },
@@ -73,7 +73,7 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
     if (!template) {
       set({
         selectedTemplate: null,
-        customization: { primaryText: "Clypra", secondaryText: "", accentText: "" },
+        customization: { primaryText: "Kev-VibeCut", secondaryText: "", accentText: "" },
       });
       return;
     }
@@ -111,7 +111,7 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
     }
 
     // Initialize customisation with defaults from the selected template
-    const primary = loadedTemplate.textLayers.find((tl) => tl.role === "primary")?.defaultText || "Clypra";
+    const primary = loadedTemplate.textLayers.find((tl) => tl.role === "primary")?.defaultText || "Kev-VibeCut";
     const secondary = loadedTemplate.textLayers.find((tl) => tl.role === "secondary")?.defaultText || "";
     const accent = loadedTemplate.textLayers.find((tl) => tl.role === "accent")?.defaultText || "";
 

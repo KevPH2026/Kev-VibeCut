@@ -1,10 +1,12 @@
 /**
  * Audio Cache Manager
- * Handles downloading and caching audio files from the library API
+ * Handles downloading and caching audio files from the library API.
+ *
+ * Tauri: persists files to app cache directory via @tauri-apps/plugin-fs.
+ * Web:   stores decoded AudioBuffers in an in-memory Map.
  */
 
-import { BaseDirectory, exists, mkdir, writeFile, readFile, remove, readDir } from "@tauri-apps/plugin-fs";
-import { join, appCacheDir } from "@tauri-apps/api/path";
+import { platform } from "@/core/platform";
 import type { AudioLibraryItem } from "@/features/audio-library/api/clypraAudioApi";
 
 export interface CachedAudioFile {
@@ -56,6 +58,19 @@ class AudioCacheManager {
   private cacheDir: string | null = null;
   private initialized = false;
 
+  /** In-memory AudioBuffer cache (web fallback) */
+  private audioBufferCache: Map<string, AudioBuffer> = new Map();
+
+  /** Shared AudioContext for web decoding (lazily created) */
+  private _audioContext: AudioContext | null = null;
+
+  private getAudioContext(): AudioContext {
+    if (!this._audioContext) {
+      this._audioContext = new AudioContext();
+    }
+    return this._audioContext;
+  }
+
   /**
    * Initialize the cache directory and load index
    */
@@ -63,18 +78,29 @@ class AudioCacheManager {
     if (this.initialized) return;
 
     try {
-      // Get cache directory path
-      const appCache = await appCacheDir();
-      this.cacheDir = await join(appCache, CACHE_DIR);
+      if (platform.isTauri()) {
+        // ── Tauri: use app cache directory ──────────────────────
+        const { appCacheDir, join } = await import("@tauri-apps/api/path");
+        const { BaseDirectory, exists, mkdir } = await import(
+          "@tauri-apps/plugin-fs"
+        );
 
-      // Create cache directory if it doesn't exist
-      const dirExists = await exists(this.cacheDir, { baseDir: BaseDirectory.AppCache });
-      if (!dirExists) {
-        await mkdir(this.cacheDir, { baseDir: BaseDirectory.AppCache, recursive: true });
+        const appCache = await appCacheDir();
+        this.cacheDir = await join(appCache, CACHE_DIR);
+
+        const dirExists = await exists(this.cacheDir, {
+          baseDir: BaseDirectory.AppCache,
+        });
+        if (!dirExists) {
+          await mkdir(this.cacheDir, {
+            baseDir: BaseDirectory.AppCache,
+            recursive: true,
+          });
+        }
+
+        await this.loadIndex();
       }
-
-      // Load cache index
-      await this.loadIndex();
+      // Web: nothing to initialise — cache is in-memory
       this.initialized = true;
     } catch (error) {
       console.error("[AudioCache] Failed to initialize:", error);
@@ -83,17 +109,26 @@ class AudioCacheManager {
   }
 
   /**
-   * Load cache index from disk
+   * Load cache index from disk (Tauri only)
    */
   private async loadIndex(): Promise<void> {
-    if (!this.cacheDir) return;
+    if (!platform.isTauri() || !this.cacheDir) return;
 
     try {
+      const { join } = await import("@tauri-apps/api/path");
+      const { BaseDirectory, exists, readFile } = await import(
+        "@tauri-apps/plugin-fs"
+      );
+
       const indexPath = await join(this.cacheDir, CACHE_INDEX_FILE);
-      const indexExists = await exists(indexPath, { baseDir: BaseDirectory.AppCache });
+      const indexExists = await exists(indexPath, {
+        baseDir: BaseDirectory.AppCache,
+      });
 
       if (indexExists) {
-        const indexData = await readFile(indexPath, { baseDir: BaseDirectory.AppCache });
+        const indexData = await readFile(indexPath, {
+          baseDir: BaseDirectory.AppCache,
+        });
         const indexJson = new TextDecoder().decode(indexData);
         const indexArray: CachedAudioFile[] = JSON.parse(indexJson);
 
@@ -103,24 +138,34 @@ class AudioCacheManager {
         });
       }
     } catch (error) {
-      console.warn("[AudioCache] Failed to load index, starting fresh:", error);
+      console.warn(
+        "[AudioCache] Failed to load index, starting fresh:",
+        error,
+      );
       this.cacheIndex.clear();
     }
   }
 
   /**
-   * Save cache index to disk
+   * Save cache index to disk (Tauri only)
    */
   private async saveIndex(): Promise<void> {
-    if (!this.cacheDir) return;
+    if (!platform.isTauri() || !this.cacheDir) return;
 
     try {
+      const { join } = await import("@tauri-apps/api/path");
+      const { BaseDirectory, writeFile } = await import(
+        "@tauri-apps/plugin-fs"
+      );
+
       const indexPath = await join(this.cacheDir, CACHE_INDEX_FILE);
       const indexArray = Array.from(this.cacheIndex.values());
       const indexJson = JSON.stringify(indexArray, null, 2);
       const indexData = new TextEncoder().encode(indexJson);
 
-      await writeFile(indexPath, indexData, { baseDir: BaseDirectory.AppCache });
+      await writeFile(indexPath, indexData, {
+        baseDir: BaseDirectory.AppCache,
+      });
     } catch (error) {
       console.error("[AudioCache] Failed to save index:", error);
     }
@@ -149,14 +194,21 @@ class AudioCacheManager {
   }
 
   /**
+   * Get decoded AudioBuffer from in-memory cache (web only).
+   * Returns `null` on Tauri (files are on disk, not decoded here).
+   */
+  getAudioBuffer(itemId: string): AudioBuffer | null {
+    return this.audioBufferCache.get(itemId) || null;
+  }
+
+  /**
    * Download audio file to cache
    */
-  async downloadAudio(item: AudioLibraryItem, onProgress?: (progress: DownloadProgress) => void): Promise<CachedAudioFile> {
+  async downloadAudio(
+    item: AudioLibraryItem,
+    onProgress?: (progress: DownloadProgress) => void,
+  ): Promise<CachedAudioFile> {
     await this.initialize();
-
-    if (!this.cacheDir) {
-      throw new Error("Cache directory not initialized");
-    }
 
     // Check if already cached
     if (this.isCached(item.id)) {
@@ -170,9 +222,22 @@ class AudioCacheManager {
       const ext = getFileExtension(item.audioUrl);
       const sanitizedName = sanitizeFileName(item.name);
       const fileName = `${item.id}_${sanitizedName}.${ext}`;
-      const filePath = await join(this.cacheDir, fileName);
 
-      console.log("[AudioCache] Downloading:", item.audioUrl, "->", filePath);
+      // For Tauri we need the on-disk path; for web we use the URL itself
+      let filePath: string;
+      if (platform.isTauri()) {
+        const { join } = await import("@tauri-apps/api/path");
+        filePath = await join(this.cacheDir!, fileName);
+      } else {
+        filePath = item.audioUrl;
+      }
+
+      console.log(
+        "[AudioCache] Downloading:",
+        item.audioUrl,
+        "->",
+        filePath,
+      );
 
       // Download file with progress tracking
       const response = await fetch(item.audioUrl);
@@ -218,8 +283,24 @@ class AudioCacheManager {
         offset += chunk.length;
       }
 
-      // Write to disk
-      await writeFile(filePath, fileData, { baseDir: BaseDirectory.AppCache });
+      if (platform.isTauri()) {
+        // ── Tauri: write to app cache directory ─────────────────
+        const { BaseDirectory, writeFile } = await import(
+          "@tauri-apps/plugin-fs"
+        );
+        await writeFile(filePath, fileData, {
+          baseDir: BaseDirectory.AppCache,
+        });
+      } else {
+        // ── Web: decode and store in memory ────────────────────
+        const audioCtx = this.getAudioContext();
+        const arrayBuffer = fileData.buffer.slice(
+          fileData.byteOffset,
+          fileData.byteOffset + fileData.byteLength,
+        );
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        this.audioBufferCache.set(item.id, audioBuffer);
+      }
 
       // Create cache entry
       const cachedFile: CachedAudioFile = {
@@ -240,19 +321,28 @@ class AudioCacheManager {
       this.cacheIndex.set(item.id, cachedFile);
       await this.saveIndex();
 
-      console.log("[AudioCache] Downloaded successfully:", fileName, `(${loaded} bytes)`);
+      console.log(
+        "[AudioCache] Downloaded successfully:",
+        fileName,
+        `(${loaded} bytes)`,
+      );
 
       return cachedFile;
     } catch (error) {
       console.error("[AudioCache] Download failed:", error);
-      throw new Error(`Failed to download audio: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to download audio: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
   /**
    * Ensure audio is downloaded (convenience method)
    */
-  async ensureDownloaded(item: AudioLibraryItem, onProgress?: (progress: DownloadProgress) => void): Promise<CachedAudioFile> {
+  async ensureDownloaded(
+    item: AudioLibraryItem,
+    onProgress?: (progress: DownloadProgress) => void,
+  ): Promise<CachedAudioFile> {
     await this.initialize();
 
     if (this.isCached(item.id)) {
@@ -272,10 +362,22 @@ class AudioCacheManager {
     if (!cached) return;
 
     try {
-      // Delete file
-      const fileExists = await exists(cached.localPath, { baseDir: BaseDirectory.AppCache });
-      if (fileExists) {
-        await remove(cached.localPath, { baseDir: BaseDirectory.AppCache });
+      if (platform.isTauri()) {
+        // ── Tauri: delete from filesystem ──────────────────────
+        const { BaseDirectory, exists, remove } = await import(
+          "@tauri-apps/plugin-fs"
+        );
+        const fileExists = await exists(cached.localPath, {
+          baseDir: BaseDirectory.AppCache,
+        });
+        if (fileExists) {
+          await remove(cached.localPath, {
+            baseDir: BaseDirectory.AppCache,
+          });
+        }
+      } else {
+        // ── Web: remove from memory ────────────────────────────
+        this.audioBufferCache.delete(itemId);
       }
 
       // Remove from index
@@ -295,18 +397,29 @@ class AudioCacheManager {
   async clearAllCache(): Promise<void> {
     await this.initialize();
 
-    if (!this.cacheDir) return;
-
     try {
-      // Read all files in cache directory
-      const entries = await readDir(this.cacheDir, { baseDir: BaseDirectory.AppCache });
+      if (platform.isTauri()) {
+        // ── Tauri: delete all files from cache directory ───────
+        const { BaseDirectory, readDir, remove } = await import(
+          "@tauri-apps/plugin-fs"
+        );
+        const { join } = await import("@tauri-apps/api/path");
 
-      // Delete all files except index
-      for (const entry of entries) {
-        if (entry.name !== CACHE_INDEX_FILE) {
-          const filePath = await join(this.cacheDir, entry.name);
-          await remove(filePath, { baseDir: BaseDirectory.AppCache });
+        if (!this.cacheDir) return;
+
+        const entries = await readDir(this.cacheDir, {
+          baseDir: BaseDirectory.AppCache,
+        });
+
+        for (const entry of entries) {
+          if (entry.name !== CACHE_INDEX_FILE) {
+            const filePath = await join(this.cacheDir, entry.name);
+            await remove(filePath, { baseDir: BaseDirectory.AppCache });
+          }
         }
+      } else {
+        // ── Web: clear in-memory buffers ───────────────────────
+        this.audioBufferCache.clear();
       }
 
       // Clear index
@@ -323,7 +436,11 @@ class AudioCacheManager {
   /**
    * Get cache statistics
    */
-  getCacheStats(): { count: number; totalSize: number; items: CachedAudioFile[] } {
+  getCacheStats(): {
+    count: number;
+    totalSize: number;
+    items: CachedAudioFile[];
+  } {
     const items = Array.from(this.cacheIndex.values());
     const totalSize = items.reduce((sum, item) => sum + item.size, 0);
 

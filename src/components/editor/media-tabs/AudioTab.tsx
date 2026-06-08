@@ -183,7 +183,7 @@ const AudioItem: React.FC<AudioItemProps> = ({ item, onAddToTimeline }) => {
           <img src={item.coverArtUrl} alt={item.name} className="w-full h-full object-cover" onError={() => setImageError(true)} />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-accent/20 to-accent/10">
-            <img src="/clypra.svg" alt="Clypra" className="w-8 h-8 object-contain opacity-60" />
+            <img src="/clypra.svg" alt="Kev-VibeCut" className="w-8 h-8 object-contain opacity-60" />
           </div>
         )}
         {/* Play/Pause Overlay */}

@@ -59,24 +59,24 @@ export class WebPlatformAdapter implements PlatformInterface {
   // ─── LocalStorage-based Project Storage ─────────────────────────────────────
 
   async getRecentProjects(): Promise<any[]> {
-    const list = localStorage.getItem("clypra_recent_projects");
+    const list = localStorage.getItem("kev-vibecut_recent_projects");
     return list ? JSON.parse(list) : [];
   }
 
   async loadProject(path: string): Promise<string> {
     const projectId = path.split("/").pop()?.replace(".json", "") || "";
-    const project = localStorage.getItem(`clypra_project_${projectId}`);
+    const project = localStorage.getItem(`kev-vibecut_project_${projectId}`);
     if (project) return project;
     throw new Error(`Project ${projectId} not found in Web storage`);
   }
 
   async saveProject(projectId: string, payload: string, recentList: string[]): Promise<void> {
-    localStorage.setItem(`clypra_project_${projectId}`, payload);
-    localStorage.setItem("clypra_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
+    localStorage.setItem(`kev-vibecut_project_${projectId}`, payload);
+    localStorage.setItem("kev-vibecut_recent_projects", JSON.stringify(recentList.map((x) => JSON.parse(x))));
   }
 
   async deleteProject(projectId: string): Promise<void> {
-    localStorage.removeItem(`clypra_project_${projectId}`);
+    localStorage.removeItem(`kev-vibecut_project_${projectId}`);
   }
 
   async renameProject(projectId: string, newName: string): Promise<void> {
@@ -85,7 +85,7 @@ export class WebPlatformAdapter implements PlatformInterface {
     project.name = newName;
     project.updatedAt = new Date().toISOString();
 
-    const listStr = localStorage.getItem("clypra_recent_projects");
+    const listStr = localStorage.getItem("kev-vibecut_recent_projects");
     const list = listStr ? JSON.parse(listStr) : [];
     const updatedList = list.map((p: any) => (p.id === projectId ? { ...p, name: newName } : p));
 

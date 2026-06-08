@@ -227,7 +227,7 @@ describe("Clypra Text Effects Engine & Presets", () => {
 
     mockEffects.forEach((effect) => {
       expect(() => {
-        renderTextEffect(canvas, "Clypra Test", effect, 48);
+        renderTextEffect(canvas, "Kev-VibeCut Test", effect, 48);
       }).not.toThrow();
     });
   });
