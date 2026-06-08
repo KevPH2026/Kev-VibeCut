@@ -83,7 +83,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
             bold: true,
             position: "bottom",
             styleId: "neon-crimson",
-            fontFamily: "Outfit Variable",
+            fontFamily: "noto-sans-sc",
           });
           addClip(textClip);
         });
@@ -138,7 +138,7 @@ export const CaptionsTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
       bold: true,
       position: "bottom",
       styleId: "neon-crimson",
-      fontFamily: "Outfit Variable",
+      fontFamily: "noto-sans-sc",
     });
 
     addClip(textClip);

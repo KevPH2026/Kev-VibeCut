@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type Theme = "dark" | "midnight" | "ocean" | "forest" | "custom";
-export type FontFamily = "inter" | "montserrat" | "geist" | "outfit" | "roboto" | "space-grotesk" | "system" | "mono";
+export type FontFamily = "inter" | "montserrat" | "geist" | "outfit" | "roboto" | "space-grotesk" | "system" | "mono" | "noto-sans-sc" | "lxgw-wenkai" | "ali-puhui";
 export type FrameRate = 24 | 30 | 60;
 export type PreviewQuality = "full" | "high" | "medium" | "low";
 
@@ -387,6 +387,9 @@ const fontFamilies: Record<FontFamily, string> = {
   "space-grotesk": '"Space Grotesk Variable", sans-serif',
   system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   mono: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+  "noto-sans-sc": '"Noto Sans SC", "思源黑体", "PingFang SC", "Microsoft YaHei", sans-serif',
+  "lxgw-wenkai": '"LXGW WenKai", "霞鹜文楷", "KaiTi", "楷体", serif',
+  "ali-puhui": '"Alibaba PuHuiTi", "阿里巴巴普惠体", "PingFang SC", "Microsoft YaHei", sans-serif',
 };
 
 export const FONT_META: Record<FontFamily, { name: string; stack: string }> = {
@@ -398,6 +401,9 @@ export const FONT_META: Record<FontFamily, { name: string; stack: string }> = {
   "space-grotesk": { name: "Space Grotesk", stack: fontFamilies["space-grotesk"] },
   system: { name: "System", stack: fontFamilies.system },
   mono: { name: "Mono", stack: fontFamilies.mono },
+  "noto-sans-sc": { name: "思源黑体", stack: fontFamilies["noto-sans-sc"] },
+  "lxgw-wenkai": { name: "霞鹜文楷", stack: fontFamilies["lxgw-wenkai"] },
+  "ali-puhui": { name: "阿里普惠体", stack: fontFamilies["ali-puhui"] },
 };
 
 export function applyTheme(theme: Theme, customColors?: Record<string, string> | null) {
