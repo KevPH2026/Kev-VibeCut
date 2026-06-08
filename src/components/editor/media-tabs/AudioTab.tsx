@@ -125,9 +125,11 @@ const AudioItem: React.FC<AudioItemProps> = ({ item, onAddToTimeline }) => {
   const downloadState = getDownloadState(item.id);
   const isDownloadedFlag = isDownloaded(item.id);
 
-  // Handle inline play (stream from URL)
+  // Handle inline play (stream from URL if available)
   const handleInlinePlay = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering preview
+    e.stopPropagation();
+    // Builtin tracks have no audio — skip play
+    if (!item.audioUrl) return;
     const audio = audioRef.current;
     if (!audio) return;
     if (isPlaying) {
@@ -171,12 +173,16 @@ const AudioItem: React.FC<AudioItemProps> = ({ item, onAddToTimeline }) => {
     }
   };
 
-  // Handle add to timeline (download first, then add)
+  // Handle add to timeline — skip download for builtin (no-audio) items
   const handleAddToTimeline = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering preview
+    e.stopPropagation();
+    // Builtin/reference tracks: pass through directly
+    if (!item.audioUrl) {
+      onAddToTimeline?.(item, "audio");
+      return;
+    }
     try {
       await startDownload(item);
-      // Call parent handler with item
       onAddToTimeline?.(item, "audio");
     } catch (error) {
       console.error("[AudioItem] Add to timeline failed:", error);

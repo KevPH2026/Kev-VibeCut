@@ -480,6 +480,16 @@ async function exportWeb(config: VideoExportConfig): Promise<VideoExportResult> 
     // Draw frame to canvas (MediaRecorder captures this)
     drawFrame(result.data);
 
+    // Render watermark overlay
+    try {
+      const { renderWatermarkOnCanvas } = await import("@/store/watermarkStore");
+      const { useWatermarkStore } = await import("@/store/watermarkStore");
+      const wmConfig = useWatermarkStore.getState().config;
+      if (wmConfig.enabled) {
+        renderWatermarkOnCanvas(ctx, width, height, wmConfig);
+      }
+    } catch { /* watermark rendering is non-critical */ }
+
     // Progress reporting
     if (onProgress) {
       const elapsedSec = (Date.now() - startTimeMs) / 1000;
