@@ -9,6 +9,7 @@ import { useProjectStore } from "@/store/projectStore";
 import type { TabProps } from "./types";
 import type { MediaAsset } from "@/types";
 import { t } from "@/lib/i18n";
+import { searchBGMTracks, getBuiltinTracks, getBGMCategories, type BGMCategory, type BGMTrack } from "@/lib/bgmLibrary";
 
 export const AudioTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,8 +27,20 @@ export const AudioTab: React.FC<TabProps> = ({ onAddToTimeline }) => {
       .then((nextItems) => {
         if (!cancelled) setItems(nextItems);
       })
-      .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load audio library");
+      .catch(async (err) => {
+        // Fallback to builtin BGM when Clypra API is unavailable
+        console.info("[AudioTab] Clypra API unavailable, loading builtin BGM library");
+        const builtin = getBuiltinTracks();
+        const adapted = builtin.map((t) => ({
+          id: t.id,
+          name: t.title,
+          author: t.artist,
+          duration: t.duration,
+          audioUrl: t.previewUrl,
+          coverArtUrl: "",
+          tags: t.tags,
+        } as unknown as AudioLibraryItem));
+        if (!cancelled) setItems(adapted as any);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
