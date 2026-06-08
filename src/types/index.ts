@@ -1,13 +1,16 @@
-export type AspectRatio = "original" | "16:9" | "9:16" | "1:1" | "4:5";
+export type AspectRatio = "original" | "16:9" | "9:16" | "3:4" | "1:1" | "4:5" | "4:3" | "21:9";
 
 export const MAX_PROJECT_NAME_LENGTH = 64;
 
 export const PREVIEW_ASPECT_LABEL: Record<AspectRatio, string> = {
   original: "Original",
-  "16:9": "16:9 (YouTube)",
-  "9:16": "9:16 (Reels/Shorts)",
-  "1:1": "1:1 (Instagram)",
+  "16:9": "16:9 (B站/横屏)",
+  "9:16": "9:16 (抖音/快手)",
+  "3:4": "3:4 (小红书)",
+  "1:1": "1:1 (方形)",
   "4:5": "4:5 (Instagram)",
+  "4:3": "4:3 (经典)",
+  "21:9": "21:9 (电影)",
 };
 
 export enum DensityLevel {

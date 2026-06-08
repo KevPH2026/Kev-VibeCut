@@ -4,8 +4,11 @@ const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: number }> 
   original: { width: 1920, height: 1080 },
   "16:9": { width: 1920, height: 1080 },
   "9:16": { width: 1080, height: 1920 },
+  "3:4": { width: 1080, height: 1440 },
   "1:1": { width: 1080, height: 1080 },
   "4:5": { width: 1080, height: 1350 },
+  "4:3": { width: 1440, height: 1080 },
+  "21:9": { width: 2520, height: 1080 },
 };
 
 function chooseClosestAspect(width: number, height: number): AspectRatio {
@@ -13,8 +16,11 @@ function chooseClosestAspect(width: number, height: number): AspectRatio {
   const candidates: Array<{ aspect: AspectRatio; ratio: number }> = [
     { aspect: "16:9", ratio: 16 / 9 },
     { aspect: "9:16", ratio: 9 / 16 },
+    { aspect: "3:4", ratio: 3 / 4 },
     { aspect: "1:1", ratio: 1 },
     { aspect: "4:5", ratio: 4 / 5 },
+    { aspect: "4:3", ratio: 4 / 3 },
+    { aspect: "21:9", ratio: 21 / 9 },
   ];
 
   let best = candidates[0];

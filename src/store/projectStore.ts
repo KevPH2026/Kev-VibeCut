@@ -80,11 +80,22 @@ const getAspectRatioDimensions = (ratio: string): { width: number; height: numbe
   const map: Record<string, { width: number; height: number }> = {
     "16:9": { width: 1920, height: 1080 },
     "9:16": { width: 1080, height: 1920 },
+    "3:4": { width: 1080, height: 1440 },
     "1:1": { width: 1080, height: 1080 },
     "4:3": { width: 1440, height: 1080 },
     "21:9": { width: 2520, height: 1080 },
   };
   return map[ratio] || map["16:9"];
+};
+
+/** Chinese platform presets: aspect ratio → { label, width, height, icon? } */
+export const PLATFORM_PRESETS: Record<string, { label: string; width: number; height: number; description: string }> = {
+  "16:9": { label: "B站 / 通用横屏", width: 1920, height: 1080, description: "B站默认 · 适合横屏内容" },
+  "9:16": { label: "抖音 / 快手竖屏", width: 1080, height: 1920, description: "抖音9:16 · 全屏沉浸" },
+  "3:4": { label: "小红书 / 图文视频", width: 1080, height: 1440, description: "小红书3:4 · 信息流最佳比例" },
+  "1:1": { label: "正方形", width: 1080, height: 1080, description: "1:1 · Instagram/微信朋友圈" },
+  "4:3": { label: "传统 4:3", width: 1440, height: 1080, description: "4:3 · 经典宽高比" },
+  "21:9": { label: "电影宽屏", width: 2520, height: 1080, description: "21:9 · 电影级宽幅" },
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;

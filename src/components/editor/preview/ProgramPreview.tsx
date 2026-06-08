@@ -29,16 +29,22 @@ const PREVIEW_ASPECT_RATIO: Record<AspectRatio, number | null> = {
   original: null, // Uses project canvas
   "16:9": 16 / 9,
   "9:16": 9 / 16,
+  "3:4": 3 / 4,
   "1:1": 1,
   "4:5": 4 / 5,
+  "4:3": 4 / 3,
+  "21:9": 21 / 9,
 };
 
 // Canvas dimensions for each preset (based on common resolutions)
 const CANVAS_DIMENSIONS: Record<Exclude<AspectRatio, "original">, { width: number; height: number }> = {
   "16:9": { width: 1920, height: 1080 },
   "9:16": { width: 1080, height: 1920 },
+  "3:4": { width: 1080, height: 1440 },
   "1:1": { width: 1080, height: 1080 },
   "4:5": { width: 1080, height: 1350 },
+  "4:3": { width: 1440, height: 1080 },
+  "21:9": { width: 2520, height: 1080 },
 };
 
 export const ProgramPreview: React.FC = () => {

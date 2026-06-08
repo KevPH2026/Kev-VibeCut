@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Film, Image as ImageIcon, Plus, Trash2, Pencil, MoreHorizontal, Clock, ChevronRight, Sparkles, Settings } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { useProjectStore } from "@/store/projectStore";
+import { useProjectStore, PLATFORM_PRESETS } from "@/store/projectStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import type { AspectRatio, MediaAsset, Project } from "@/types";
 import { MAX_PROJECT_NAME_LENGTH } from "@/types";
@@ -45,6 +45,7 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const { toggleSettingsModal } = useUIStore();
+  const [selectedRatio, setSelectedRatio] = useState<AspectRatio>("16:9");
 
   useEffect(() => {
     const loadRecentProjects = async () => {
@@ -58,9 +59,10 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
     loadRecentProjects();
   }, [setRecentProjects]);
 
-  const handleStartNewProject = () => {
+  const handleStartNewProject = (ratio?: AspectRatio) => {
     const { defaultFrameRate } = useSettingsStore.getState();
-    onProjectCreate("Untitled Project", "16:9", defaultFrameRate);
+    const selected = ratio || selectedRatio;
+    onProjectCreate("未命名项目", selected, defaultFrameRate);
   };
 
   const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
@@ -184,14 +186,40 @@ export const LaunchScreen: React.FC<LaunchScreenProps> = ({ onProjectCreate, onP
               }}
             />
 
-            <div className="relative z-10">
+            <div className="relative z-10 w-full">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-accent text-[11px] font-semibold mb-4">
                 <Sparkles className="w-3 h-3" />
                 {t("launch.createAmazing")}
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-2 tracking-tight">{t("launch.startNew")}</h2>
-              <p className="text-sm text-text-muted mb-6 max-w-md">{t("launch.beginWith")}</p>
-              <Button variant="default" size="lg" onClick={handleStartNewProject} className="py-2 px-4 text-base font-semibold rounded-xl transition-all cursor-pointer">
+              <p className="text-sm text-text-muted mb-6 max-w-md mx-auto">{t("launch.beginWith")}</p>
+
+              {/* Platform Preset Selector */}
+              <div className="grid grid-cols-3 gap-2 mb-6 max-w-xl mx-auto">
+                {(["16:9", "9:16", "3:4", "1:1", "4:3", "21:9"] as const).map((ratio) => {
+                  const preset = PLATFORM_PRESETS[ratio];
+                  const selected = selectedRatio === ratio;
+                  return (
+                    <button
+                      key={ratio}
+                      onClick={() => setSelectedRatio(ratio)}
+                      className={`relative cursor-pointer rounded-xl p-3 border transition-all text-left ${
+                        selected
+                          ? "border-accent/60 bg-accent/10 shadow-[0_0_12px_rgba(108,99,255,0.15)]"
+                          : "border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4"
+                      }`}
+                    >
+                      <div className="text-xs font-semibold text-text-primary mb-0.5">{preset.label}</div>
+                      <div className="text-[10px] text-text-muted">{ratio} · {preset.width}×{preset.height}</div>
+                      {selected && (
+                        <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent shadow-[0_0_6px_rgba(108,99,255,0.6)]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <Button variant="default" size="lg" onClick={() => handleStartNewProject()} className="py-2 px-4 text-base font-semibold rounded-xl transition-all cursor-pointer">
                 <Plus className="mr-1" />
                 {t("launch.newProject")}
               </Button>
