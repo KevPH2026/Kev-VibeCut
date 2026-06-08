@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { CloudUpload } from "lucide-react";
-import { invoke } from "@tauri-apps/api/core";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -13,6 +11,7 @@ import { useUIStore } from "@/store/uiStore";
 import { useTimelineStore } from "@/store/timelineStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { DeleteClipCommand } from "@/core/history/commands/DeleteClipCommand";
+import { platform } from "@/core/platform";
 import type { VideoMetadata } from "@/types";
 import type { MediaTabProps } from "./types";
 import { generateId } from "@/lib/id";
@@ -40,35 +39,38 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
     return "image";
   };
 
-  const handleTauriFileDrop = useCallback(
-    async (paths: string[]) => {
-      for (const filePath of paths) {
+  const handleFileDrop = useCallback(
+    async (files: File[]) => {
+      for (const file of files) {
         try {
-          const filename = filePath.split("/").pop() || filePath.split("\\").pop() || "Unknown";
+          const filename = file.name;
           const type = getMediaType(filename);
+          const fileUrl = URL.createObjectURL(file);
 
           // Check if asset already exists
-          const existingAsset = mediaAssets.find((a) => a.path === filePath);
+          const existingAsset = mediaAssets.find((a) => a.name === filename);
           if (existingAsset) {
+            URL.revokeObjectURL(fileUrl);
             continue;
           }
 
-          // Import new asset
+          // Import new asset using platform adapter
           if (type === "video" || type === "audio") {
-            const metadata: VideoMetadata = await invoke("get_video_metadata", { path: filePath });
-            // Use extract_poster_frame_command which extracts at 10% of duration (avoids black frames at 0s)
-            const posterFrame: string | undefined = type === "video" ? ((await invoke("extract_poster_frame_command", { videoPath: filePath, duration: metadata.duration, dpr: window.devicePixelRatio || 1.0 }).catch(() => undefined)) as string | undefined) : undefined;
+            const metadata = await platform.getMediaMetadata(fileUrl);
+            const posterFrame: string | undefined = type === "video"
+              ? await platform.extractPosterFrame(fileUrl, metadata.duration, window.devicePixelRatio || 1.0).catch(() => undefined)
+              : undefined;
 
             const asset = {
               id: generateId("asset"),
               name: filename,
-              path: filePath,
+              path: fileUrl,
               type,
               duration: metadata.duration,
               width: metadata.width,
               height: metadata.height,
               posterFrame,
-              size: metadata.size,
+              size: file.size,
             };
 
             addMediaAsset(asset);
@@ -76,18 +78,18 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
             const asset = {
               id: generateId("asset"),
               name: filename,
-              path: filePath,
+              path: fileUrl,
               type: "image" as const,
               duration: 0,
-              size: 0,
-              posterFrame: convertFileSrc(filePath),
+              size: file.size,
+              posterFrame: fileUrl,
             };
 
             addMediaAsset(asset);
           }
         } catch (error) {
-          console.error(`[MediaTab] Failed to import ${filePath}:`, error);
-          useProjectStore.getState().showToast(`Failed to import ${filePath.split("/").pop() || "file"}`, "error");
+          console.error(`[MediaTab] Failed to import ${file.name}:`, error);
+          useProjectStore.getState().showToast(`Failed to import ${file.name}`, "error");
         }
       }
     },
@@ -96,7 +98,7 @@ export const MediaTab: React.FC<MediaTabProps> = ({ onAddToTimeline }) => {
 
   // Use the file drop hook
   const { containerRef, isDraggingOver } = useFileDrop({
-    onDrop: handleTauriFileDrop,
+    onDrop: handleFileDrop,
     enabled: true,
   });
 

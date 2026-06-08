@@ -28,6 +28,7 @@ import type { Project, MediaAsset, TransitionTimelineItem } from "@/types";
 import { MAX_PROJECT_NAME_LENGTH } from "@/types";
 import { toRustProject } from "@/types/serialization";
 import { generateId } from "@/lib/id";
+import { platform } from "@/core/platform";
 import { useSettingsStore } from "./settingsStore";
 // import { TIMELINE_PPS_PER_ZOOM, TIMELINE_ZOOM_DEFAULT } from "@/lib/timelineZoom";
 
@@ -316,10 +317,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 	          // Convert camelCase to snake_case using centralized serialization
 	          const rustProject = toRustProject(project, { tracks, clips, transitions, mediaAssets });
 
-          const { invoke } = await import("@tauri-apps/api/core");
-          await invoke("save_project", {
-            projectData: JSON.stringify(rustProject),
-          });
+          // Use platform adapter for save (Tauri invoke or Web localStorage)
+          if (platform.isTauri()) {
+            const { invoke } = await import("@tauri-apps/api/core");
+            await invoke("save_project", {
+              projectData: JSON.stringify(rustProject),
+            });
+          } else {
+            const list = get().recentProjects.map((p) => JSON.stringify(p));
+            await platform.saveProject(project.id, JSON.stringify(rustProject), list);
+          }
 
           get().showToast("Project saved");
         } catch (error) {
@@ -370,10 +377,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 	        // Convert camelCase to snake_case using centralized serialization
 	        const rustProject = toRustProject(project, { tracks, clips, transitions, mediaAssets });
 
-        const { invoke } = await import("@tauri-apps/api/core");
-        await invoke("save_project", {
-          projectData: JSON.stringify(rustProject),
-        });
+        // Use platform adapter for save
+        if (platform.isTauri()) {
+          const { invoke } = await import("@tauri-apps/api/core");
+          await invoke("save_project", {
+            projectData: JSON.stringify(rustProject),
+          });
+        } else {
+          const list = get().recentProjects.map((p) => JSON.stringify(p));
+          await platform.saveProject(project.id, JSON.stringify(rustProject), list);
+        }
         get().showToast("Project saved");
       } catch (error) {
         console.error("[AutoSave] Failed to save project:", error);
