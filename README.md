@@ -1,4 +1,4 @@
-# VibeCut
+# Kev-VibeCut
 
 <div align="center">
 
@@ -6,33 +6,33 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![BP](https://img.shields.io/badge/BP-Read%20Plan-blue)](https://kevph2026.github.io/VibeCut/)
-[![BRD](https://img.shields.io/badge/BRD-Read%20Spec-purple)](https://kevph2026.github.io/VibeCut/)
+[![BP](https://img.shields.io/badge/BP-Read%20Plan-blue)](https://kevph2026.github.io/Kev-VibeCut/)
+[![BRD](https://img.shields.io/badge/BRD-Read%20Spec-purple)](https://kevph2026.github.io/Kev-VibeCut/)
 
-📋 [Business Plan](https://kevph2026.github.io/VibeCut/) • 📐 [BRD](https://kevph2026.github.io/VibeCut/) • 🔧 [Upstream](https://github.com/AIEraDev/Clypra)
+📋 [Business Plan](https://kevph2026.github.io/Kev-VibeCut/) • 📐 [BRD](https://kevph2026.github.io/Kev-VibeCut/) • 🔧 [Upstream](https://github.com/AIEraDev/Clypra)
 
 </div>
 
 ---
 
-## What is VibeCut?
+## What is Kev-VibeCut?
 
-VibeCut is an **Agent-driven video editor**. You describe what you want in natural language, and AI does the editing.
+Kev-VibeCut is an **Agent-driven video editor**. You describe what you want in natural language, and AI does the editing.
 
-Most video editors make YOU learn the tool. VibeCut flips that: **the tool learns what you want.**
+Most video editors make YOU learn the tool. Kev-VibeCut flips that: **the tool learns what you want.**
 
 ```
 You: "Cut the first 10 seconds, add a fade transition, export as 16:9"
-VibeCut: ✅ Done.
+Kev-VibeCut: ✅ Done.
 ```
 
-Built on top of [Clypra](https://github.com/AIEraDev/Clypra)'s S-tier WebGL rendering engine (MIT licensed), VibeCut adds an **Agent layer** that turns natural language into timeline operations.
+Built on top of [Clypra](https://github.com/AIEraDev/Clypra)'s S-tier WebGL rendering engine (MIT licensed), Kev-VibeCut adds an **Agent layer** that turns natural language into timeline operations.
 
 ---
 
-## Why VibeCut?
+## Why Kev-VibeCut?
 
-| | CapCut/剪映 | Descript | VibeCut |
+| | CapCut/剪映 | Descript | Kev-VibeCut |
 |---|---|---|---|
 | **Interaction** | Manual drag & drop | Text-based editing | **Natural language (Agent)** |
 | **Platform** | Desktop + Mobile | Desktop | **Web + Desktop + Mobile** |
@@ -40,17 +40,17 @@ Built on top of [Clypra](https://github.com/AIEraDev/Clypra)'s S-tier WebGL rend
 | **Language** | Chinese + English | English only | **Chinese first, English WIP** |
 | **Learning curve** | Medium | Low | **Zero** |
 
-VibeCut picks up where "vibe coding" left off — **vibe cutting**. You describe the feeling, AI handles the timeline.
+Kev-VibeCut picks up where "vibe coding" left off — **vibe cutting**. You describe the feeling, AI handles the timeline.
 
 ---
 
 ## 🗺️ Project Documentation
 
-This repo is more than code. Every VibeCut project ships with full business context:
+This repo is more than code. Every Kev-VibeCut project ships with full business context:
 
 | Document | Description |
 |---|---|
-| **[📋 Business Plan](https://kevph2026.github.io/VibeCut/)** | Strategy, market analysis, business model, growth plan |
+| **[📋 Business Plan](https://kevph2026.github.io/Kev-VibeCut/)** | Strategy, market analysis, business model, growth plan |
 | **[📐 BRD](BRD.md)** | User personas, user stories, Agent architecture, MVP scope |
 | **[🔬 Research](RESEARCH.md)** | Deep-dive on Clypra codebase (52K LOC TS, WebGL engine, Rust backend) |
 
@@ -81,8 +81,8 @@ This repo is more than code. Every VibeCut project ships with full business cont
 
 ```bash
 # Clone
-git clone https://github.com/KevPH2026/VibeCut.git
-cd VibeCut
+git clone https://github.com/KevPH2026/Kev-VibeCut.git
+cd Kev-VibeCut
 
 # Install
 npm install
@@ -94,7 +94,7 @@ npm run dev
 npm run tauri dev
 ```
 
-> ⚠️ VibeCut is in early development. Web version + Agent layer are being built. Desktop version inherits Clypra's full feature set.
+> ⚠️ Kev-VibeCut is in early development. Web version + Agent layer are being built. Desktop version inherits Clypra's full feature set.
 
 ---
 
@@ -107,7 +107,7 @@ npm run tauri dev
 | 3. Polish | 7-9 | Agent UX, FFmpeg.wasm export, templates |
 | 4. Launch | 10-12 | Open source release, hosted beta, customer pilot |
 
-See [Business Plan](https://kevph2026.github.io/VibeCut/) for full details.
+See [Business Plan](https://kevph2026.github.io/Kev-VibeCut/) for full details.
 
 ---
 
@@ -136,4 +136,4 @@ MIT — same as upstream Clypra. Open source, open business.
 
 ---
 
-*VibeCut — Vibe it. Cut it.*
+*Kev-VibeCut — Vibe it. Cut it.*

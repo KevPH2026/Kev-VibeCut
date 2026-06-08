@@ -1,8 +1,8 @@
-# Clypra → VibeCut 深度研究报告
+# Clypra → Kev-VibeCut 深度研究报告
 
 > 生成日期：2026-06-07
 > 仓库：https://github.com/AIEraDev/Clypra
-> Fork：https://github.com/KevPH2026/VibeCut
+> Fork：https://github.com/KevPH2026/Kev-VibeCut
 
 ---
 
@@ -194,7 +194,7 @@ src/lib/renderEngine/
 
 ```
 路径：   ~/.hermes/workspace/clypra-product/
-Fork：   github.com/KevPH2026/VibeCut
+Fork：   github.com/KevPH2026/Kev-VibeCut
 上游：   github.com/AIEraDev/Clypra
 Node：   v25.6.1 ✅
 Rust：   1.94.0 ✅
@@ -214,4 +214,4 @@ TSC：    零错误 ✅
 | Descript | AI 视频编辑 | 基于文本编辑视频 | 仅英文、贵 |
 | ScreenStudio | 屏幕录制 | 自动美化 | macOS only |
 
-**VibeCut的机会窗口：** 剪映强在「手动剪」，Descript 强在「文本驱动编辑」，但 **没有人做「Agent 驱动编辑」**——你说一段话，AI 理解意图，自动完成剪辑全流程。这是 Clypra 架构的最佳魔改方向。
+**Kev-VibeCut的机会窗口：** 剪映强在「手动剪」，Descript 强在「文本驱动编辑」，但 **没有人做「Agent 驱动编辑」**——你说一段话，AI 理解意图，自动完成剪辑全流程。这是 Clypra 架构的最佳魔改方向。
