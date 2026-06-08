@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kev-VibeCut — Clypra, Supercharged for Creators</title>
+<meta name="description" content="Kev-VibeCut is a community fork of Clypra — the open-source AI video editor — rebuilt for real creators with 6 platform presets, AI agent editing, smart subtitles, 16 templates, and pure web runtime. No install. No lock-in. Just ship.">
+<meta property="og:title" content="Kev-VibeCut — Open-Source AI Video Editor">
+<meta property="og:description" content="Clypra reimagined: platform presets, AI agent, smart subtitles, templates. Pure web.">
+<meta property="og:image" content="https://kevph2026.github.io/Kev-VibeCut/kev-vibecut.svg">
+<meta property="og:type" content="website">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #050508;
+  --pink: #ff2d55;
+  --pink-glow: #ff2d5580;
+  --cyan: #00d4ff;
+  --cyan-glow: #00d4ff40;
+  --white: #f0f0f5;
+  --gray: #666680;
+  --gray2: #3a3a50;
+  --font-zh: 'Noto Sans SC', -apple-system, sans-serif;
+  --font-en: 'Inter', -apple-system, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--white);
+  font-family: var(--font-zh); overflow-x: hidden;
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+}
+
+.bg-grid {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+}
+.glow-pink {
+  position:fixed; width:600px; height:400px; border-radius:50%;
+  background:var(--pink); opacity:0.05; filter:blur(120px);
+  top:-150px; left:-100px; pointer-events:none; z-index:0;
+}
+.glow-cyan {
+  position:fixed; width:500px; height:350px; border-radius:50%;
+  background:var(--cyan); opacity:0.04; filter:blur(100px);
+  top:40%; right:-150px; pointer-events:none; z-index:0;
+}
+
+.particles { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.particle { position:absolute; border-radius:50%; background:var(--cyan); animation:float 6s ease-in-out infinite; }
+.particle.pink { background:var(--pink); }
+.particle:nth-child(1){width:3px;height:3px;top:15%;left:10%;animation-delay:0s}
+.particle:nth-child(2){width:2px;height:2px;top:25%;left:85%;animation-delay:1s}
+.particle:nth-child(3){width:4px;height:4px;top:60%;left:20%;animation-delay:2s}
+.particle:nth-child(4){width:2px;height:2px;top:70%;left:75%;animation-delay:3s}
+.particle:nth-child(5){width:3px;height:3px;top:40%;left:50%;animation-delay:4s}
+@keyframes float { 0%,100%{transform:translateY(0) scale(1);opacity:.4} 50%{transform:translateY(-20px) scale(1.5);opacity:1} }
+
+.container { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:0 20px; }
+
+/* ═══════════ HERO ═══════════ */
+.hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; text-align:center; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 18px; border:1px solid rgba(0,212,255,0.3);
+  border-radius:50px; background:rgba(0,212,255,0.06);
+  margin-bottom:24px; backdrop-filter:blur(10px);
+  font-size:12px; font-weight:600; letter-spacing:1.5px;
+  color:var(--cyan); text-transform:uppercase; font-family:var(--font-en);
+}
+.hero-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan),0 0 16px var(--cyan); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+.hero h1 { font-size:clamp(48px,8vw,96px); font-weight:900; letter-spacing:-2px; line-height:1; margin-bottom:8px; }
+.hero h1 .hl { color:var(--pink); text-shadow:0 0 40px var(--pink-glow); }
+.hero h1 .hc { color:var(--cyan); text-shadow:0 0 40px var(--cyan-glow); }
+
+.hero-tagline {
+  font-size:clamp(15px,2.2vw,20px); color:var(--gray); font-weight:400;
+  margin-bottom:16px; max-width:600px; line-height:1.6;
+}
+.hero-tagline em { color:var(--pink); font-style:normal; font-weight:600; }
+.hero-tagline strong { color:var(--cyan); }
+
+.hero-byline {
+  font-size:13px; color:var(--gray2); margin-bottom:40px;
+  font-family:var(--font-en); letter-spacing:0.5px;
+}
+.hero-byline a { color:var(--cyan); text-decoration:none; }
+.hero-byline a:hover { text-decoration:underline; }
+
+.hero-ctas { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:48px; }
+.btn-primary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 36px; border-radius:14px;
+  font-size:17px; font-weight:700; border:none; cursor:pointer;
+  color:#fff; text-decoration:none;
+  background:linear-gradient(135deg,var(--pink),#ff6b81);
+  box-shadow:0 0 30px rgba(255,45,85,0.3);
+  transition:all 0.3s;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 0 40px rgba(255,45,85,0.45); }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 28px; border-radius:14px;
+  font-size:15px; font-weight:600; border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.03); color:var(--white); text-decoration:none;
+  backdrop-filter:blur(10px); transition:all 0.3s;
+}
+.btn-ghost:hover { border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.05); }
+
+.hero-stats { display:flex; gap:32px; flex-wrap:wrap; justify-content:center; }
+.hero-stat { text-align:center; }
+.hero-stat .num { font-size:28px; font-weight:900; font-family:var(--font-en); color:var(--white); }
+.hero-stat .label { font-size:11px; color:var(--gray); font-family:var(--font-en); text-transform:uppercase; letter-spacing:1px; }
+
+/* ═══════════ COMPARISON TABLE ═══════════ */
+.section { padding:80px 0; }
+.section-header { text-align:center; margin-bottom:60px; }
+.section-header h2 { font-size:clamp(28px,4vw,42px); font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
+.section-header p { font-size:16px; color:var(--gray); }
+
+.compare-table {
+  width:100%; border-collapse:separate; border-spacing:0;
+  border-radius:16px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.01);
+  backdrop-filter:blur(10px);
+}
+.compare-table th, .compare-table td { padding:16px 20px; text-align:left; font-size:14px; }
+.compare-table th { background:rgba(255,255,255,0.02); font-weight:700; font-size:13px; color:var(--gray); text-transform:uppercase; letter-spacing:1px; font-family:var(--font-en); }
+.compare-table th:first-child { color:var(--white); }
+.compare-table th.col-us { color:var(--pink); }
+.compare-table td { border-top:1px solid rgba(255,255,255,0.04); }
+.compare-table td:first-child { font-weight:600; color:var(--white); }
+.compare-table td .check { color:#00e676; font-weight:700; }
+.compare-table td .cross { color:var(--gray2); }
+.compare-table tr:hover td { background:rgba(255,45,85,0.02); }
+.compare-table .highlight td { background:rgba(255,45,85,0.04) !important; }
+
+/* ═══════════ FEATURES ═══════════ */
+.feature-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.fcard {
+  padding:28px 24px; border-radius:16px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);
+  backdrop-filter:blur(10px); transition:all 0.3s;
+}
+.fcard:hover { border-color:rgba(255,45,85,0.15); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.fcard .ficon { font-size:36px; margin-bottom:14px; }
+.fcard h3 { font-size:18px; font-weight:700; margin-bottom:4px; }
+.fcard .ftag { font-size:11px; color:var(--pink); font-family:var(--font-en); font-weight:600; margin-bottom:10px; }
+.fcard p { font-size:13px; color:var(--gray); line-height:1.7; }
+
+/* ═══════════ WHY FORK ═══════════ */
+.why-fork { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+.why-box {
+  padding:32px; border-radius:16px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.01);
+  backdrop-filter:blur(10px);
+}
+.why-box h3 { font-size:20px; font-weight:700; margin-bottom:16px; }
+.why-box h3 .c { color:var(--pink); }
+.why-box ul { list-style:none; }
+.why-box li { padding:8px 0; font-size:14px; color:var(--gray); line-height:1.6; display:flex; align-items:flex-start; gap:8px; }
+.why-box li::before { content:'•'; color:var(--pink); font-weight:700; }
+.why-box.clypra li::before { color:var(--gray2); }
+
+/* ═══════════ TESTIMONIAL / QUOTE ═══════════ */
+.quote-block {
+  text-align:center; padding:40px;
+  border-radius:16px; border:1px solid rgba(255,45,85,0.15);
+  background:rgba(255,45,85,0.03);
+  backdrop-filter:blur(10px); max-width:700px; margin:0 auto;
+}
+.quote-block q {
+  font-size:18px; font-weight:500; line-height:1.7; color:var(--white);
+  font-style:italic;
+}
+.quote-block .attr { margin-top:12px; font-size:13px; color:var(--gray); }
+
+/* ═══════════ CTA BOTTOM ═══════════ */
+.cta-bottom { text-align:center; padding:60px 0; }
+.cta-bottom h2 { font-size:clamp(24px,3vw,36px); font-weight:800; margin-bottom:8px; }
+.cta-bottom p { font-size:15px; color:var(--gray); margin-bottom:32px; }
+.cta-bottom .btn-group { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+/* Footer */
+.footer { text-align:center; padding:40px 20px; border-top:1px solid rgba(255,255,255,0.05); color:var(--gray); font-size:13px; }
+.footer a { color:var(--cyan); text-decoration:none; }
+
+/* Responsive */
+@media (max-width:768px) {
+  .why-fork { grid-template-columns:1fr; }
+  .feature-cards { grid-template-columns:1fr; }
+  .compare-table th, .compare-table td { padding:12px 14px; font-size:12px; }
+  .hero-ctas { flex-direction:column; align-items:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow-pink"></div>
+<div class="glow-cyan"></div>
+<div class="particles">
+  <div class="particle"></div><div class="particle pink"></div>
+  <div class="particle"></div><div class="particle pink"></div>
+  <div class="particle"></div>
+</div>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero container">
+  <div class="hero-badge"><span class="dot"></span> OPEN SOURCE · AGENT-DRIVEN · WEB-NATIVE</div>
+
+  <h1><span class="hl">Kev</span>-<span class="hc">VibeCut</span></h1>
+
+  <p class="hero-tagline">
+    A <em>community fork</em> of Clypra — the open-source AI video editor —<br>
+    <strong>rebuilt for creators who actually ship.</strong>
+  </p>
+
+  <p class="hero-byline">
+    Based on <a href="https://github.com/nous-research/clypra" target="_blank">Clypra by Nous Research</a> · MIT Licensed
+  </p>
+
+  <div class="hero-ctas">
+    <a href="https://kevph2026.github.io/Kev-VibeCut/" class="btn-primary">🚀 Try It Now</a>
+    <a href="https://github.com/KevPH2026/Kev-VibeCut" class="btn-ghost" target="_blank">⭐ Star on GitHub</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">6</div><div class="label">Platform Presets</div></div>
+    <div class="hero-stat"><div class="num">16</div><div class="label">Templates</div></div>
+    <div class="hero-stat"><div class="num">7</div><div class="label">Pain Points Solved</div></div>
+    <div class="hero-stat"><div class="num">100%</div><div class="label">Web-Native</div></div>
+  </div>
+</section>
+
+<!-- ═══════════ COMPARISON ═══════════ -->
+<section class="container section">
+  <div class="section-header">
+    <h2>Why Fork Clypra?</h2>
+    <p>Clypra is a brilliant engine. Kev-VibeCut is Clypra <span style="color:var(--pink)">with the creator experience it deserves.</span></p>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th style="color:var(--gray)">Clypra (Upstream)</th>
+        <th class="col-us">Kev-VibeCut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td>Runtime</td>
+        <td><span class="cross">Tauri desktop only</span></td>
+        <td><span class="check">✓ Pure Web — browser is enough</span></td>
+      </tr>
+      <tr>
+        <td>Platform Presets</td>
+        <td><span class="cross">Manual 16:9 canvas</span></td>
+        <td><span class="check">✓ 6 presets — TikTok, Reels, YouTube, Shorts</span></td>
+      </tr>
+      <tr class="highlight">
+        <td>AI Agent</td>
+        <td><span class="cross">Not shipped</span></td>
+        <td><span class="check">✧ Natural language → real timeline ops</span></td>
+      </tr>
+      <tr>
+        <td>Templates</td>
+        <td><span class="cross">API-dependent Clypra Studio</span></td>
+        <td><span class="check">✓ 16 built-in, works offline</span></td>
+      </tr>
+      <tr class="highlight">
+        <td>Subtitles</td>
+        <td><span class="cross">Whisper + manual SRT</span></td>
+        <td><span class="check">✧ Intl.Segmenter + auto re-segmentation</span></td>
+      </tr>
+      <tr>
+        <td>Fonts</td>
+        <td><span class="cross">8 Latin-only fonts</span></td>
+        <td><span class="check">✓ +3 CJK fonts — Noto Sans SC, LXGW WenKai, PuHuiTi</span></td>
+      </tr>
+      <tr class="highlight">
+        <td>BGM</td>
+        <td><span class="cross">Clypra Studio API required</span></td>
+        <td><span class="check">✓ Built-in + Pixabay — works offline</span></td>
+      </tr>
+      <tr>
+        <td>Watermark</td>
+        <td><span class="cross">Manual overlay only</span></td>
+        <td><span class="check">✓ One-click — text / image, 5 positions, auto on export</span></td>
+      </tr>
+      <tr class="highlight">
+        <td>Language</td>
+        <td><span class="cross">English only</span></td>
+        <td><span class="check">✓ Bilingual — 中文 first, EN fallback</span></td>
+      </tr>
+      <tr>
+        <td>Export</td>
+        <td><span class="cross">Tauri FFmpeg required</span></td>
+        <td><span class="check">✓ Canvas + MediaRecorder — zero dependencies</span></td>
+      </tr>
+      <tr class="highlight">
+        <td>License</td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓ MIT — same as upstream, forever open</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════ WHY FORK ═══════════ -->
+<section class="container section">
+  <div class="section-header">
+    <h2>The Real Difference</h2>
+    <p>Not a rewrite. A <span style="color:var(--pink)">community upgrade</span> that preserves everything good about Clypra.</p>
+  </div>
+
+  <div class="why-fork">
+    <div class="why-box clypra">
+      <h3>Clypra <span class="c">(What we love)</span></h3>
+      <ul>
+        <li>Elegant Rust/Tauri + React architecture</li>
+        <li>Professional timeline engine with frame scheduler</li>
+        <li>GPU-accelerated preview pipeline</li>
+        <li>Whisper local transcription</li>
+        <li>FFmpeg-based export with H.264/H.265/ProRes</li>
+        <li>Clean Zustand store architecture</li>
+        <li>TypeScript throughout — 676 test suite</li>
+      </ul>
+    </div>
+    <div class="why-box">
+      <h3><span class="hl">Kev</span>-<span class="hc">VibeCut</span> <span class="c">(What we added)</span></h3>
+      <ul>
+        <li>Dropped Tauri dependency — runs in any browser</li>
+        <li>6 platform presets for every social network</li>
+        <li>AI Agent: type commands, get timeline changes</li>
+        <li>16 Chinese-first templates (also work in EN)</li>
+        <li>Smart subtitle segmentation for all languages</li>
+        <li>Offline BGM library + Pixabay integration</li>
+        <li>One-click watermark with 5 positions</li>
+        <li>Bilingual UI — 中文 / English on the fly</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FEATURES ═══════════ -->
+<section class="container section">
+  <div class="section-header">
+    <h2>7 Pain Points, Solved</h2>
+    <p>Every change answers a real creator need. Nothing added "just because."</p>
+  </div>
+
+  <div class="feature-cards">
+    <div class="fcard">
+      <div class="ficon">📱</div>
+      <h3>Platform Presets</h3>
+      <div class="ftag">PAIN: "What resolution for TikTok?"</div>
+      <p>6 presets one click away. TikTok 9:16, YouTube 16:9, Reels, Shorts, Stories, Cinematic. Auto-detects canvas size. No more guessing.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">🤖</div>
+      <h3>AI Agent Editing</h3>
+      <div class="ftag">PAIN: "I don't want to learn a timeline"</div>
+      <p>Type <em>"add text Hello World"</em> or <em>"trim to 15s"</em> or <em>"apply template BOOM"</em>. The agent places clips on the timeline for you. Natural language → real operations.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">💬</div>
+      <h3>Smart Subtitles</h3>
+      <div class="ftag">PAIN: "Subtitles look robotic"</div>
+      <p>Intl.Segmenter for word-level CJK segmentation. Whisper auto-transcription with intelligent re-chunking. ~15 chars per line — what human eyes actually read comfortably.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">🎨</div>
+      <h3>16 Templates</h3>
+      <div class="ftag">PAIN: "I'm not a designer"</div>
+      <p>Pre-built text animation templates: titles, captions, CTAs, outros. Click, apply, done. Works offline. No Studio API required.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">🎵</div>
+      <h3>Royalty-Free BGM</h3>
+      <div class="ftag">PAIN: "Where do I get music?"</div>
+      <p>6 built-in tracks for offline use. Pixabay API for unlimited royalty-free music. No copyright strikes.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">©️</div>
+      <h3>One-Click Watermark</h3>
+      <div class="ftag">PAIN: "I need my brand on every video"</div>
+      <p>Set your text or image watermark once. 5 positions, adjustable opacity. Auto-applied on every export frame.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">🌐</div>
+      <h3>Pure Web</h3>
+      <div class="ftag">PAIN: "I don't want to install anything"</div>
+      <p>Open a URL. That's it. No Tauri, no FFmpeg, no 500MB download. Canvas + MediaRecorder for export. localStorage for persistence.</p>
+    </div>
+    <div class="fcard">
+      <div class="ficon">🔤</div>
+      <h3>Global Fonts</h3>
+      <div class="ftag">PAIN: "Chinese text looks broken"</div>
+      <p>Noto Sans SC + LXGW WenKai + Alibaba PuHuiTi. CDN-loaded, ready on first use. Latin fonts kept intact.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ QUOTE ═══════════ -->
+<section class="container section">
+  <div class="quote-block">
+    <q>Clypra built the engine. We built the cockpit. Everything upstream stays — we just made it fly.</q>
+    <div class="attr">— Kev-VibeCut is a community fork, not a competitor</div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA ═══════════ -->
+<section class="container cta-bottom">
+  <h2>Open Source. No Lock-In. Just Ship.</h2>
+  <p>MIT licensed. Fork it. Ship it. Send a PR back upstream if you want.</p>
+  <div class="btn-group">
+    <a href="https://kevph2026.github.io/Kev-VibeCut/" class="btn-primary">🚀 Open Editor</a>
+    <a href="https://github.com/KevPH2026/Kev-VibeCut" class="btn-ghost" target="_blank">⭐ Star on GitHub</a>
+  </div>
+</section>
+
+<footer class="footer">
+  Kev-VibeCut · A community fork of <a href="https://github.com/nous-research/clypra" target="_blank">Clypra</a> by <a href="https://github.com/nous-research" target="_blank">Nous Research</a> · MIT License
+</footer>
+
+</body>
+</html>
